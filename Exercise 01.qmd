@@ -5,23 +5,172 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Exercise 1.1
 
 ```{r}
-1 + 1
+typeof(mtcars)
 ```
 
-You can add options to executable code like this
+-   `typeof(mtcars)` describes the vector type of the mtcars data set (it's a list)
 
 ```{r}
-#| echo: false
-2 * 2
+class(mtcars)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+-   `class(mtcars)` describes the class attribute of the mtcars data set (it's a data frame)
+
+```{r}
+nrow(mtcars)
+```
+
+-   `nrow(mtcars)` reports the number of rows in an object (mtcars has 32 rows)
+
+```{r}
+ncol(mtcars)
+```
+
+-   `ncol(mtcars)` reports the number of columns in an object (mtcars has 11 columns)
+
+```{r}
+length(mtcars)
+```
+
+-   `length(mtcars)` reports the length of each row in the mtcars data frame (mtcars has a length of 11 columns)
+
+```{r}
+dim(mtcars)
+```
+
+-   `dim(mtcars)` reports the dimensions of the mtcars data frame (32 rows, 11 columns)
+
+```{r}
+rownames(mtcars)
+```
+
+-   `rownames(mtcars)` reports the names of each of the 32 rows in the mtcars data frame
+
+```{r}
+colnames(mtcars)
+```
+
+-   `colnames(mtcars`) reports the names of each of the 11 columns in the mtcars data frame
+
+## Exercise 1.2
+
+When I ran `TRUE <- 123`, I got the following error message: "Error in TRUE \<- 123 : invalid (do_set) left-hand side to assignment"
+
+## Exercise 1.3
+
+I predict that `c(1, FALSE)` will yield a double vector
+
+I predict that `c("a", 1)` will yield a character vector
+
+I predict that `c(TRUE, 1L)` will yield an integer vector
+
+## Exercise 1.4
+
+```{r}
+as.integer(FALSE)
+as.integer(TRUE)
+```
+
+When I use `as.integer()` on `TRUE` and `FALSE`, they get coerced from logical values to integer values (FALSE=0, TRUE=1).
+
+## Exercise 1.5
+
+```{r}
+x <- sample(c(TRUE, FALSE), size = 75, replace = TRUE)
+str(x)
+#Number of true values:
+sum(x)
+#Proportion of true values:
+mean(x)
+#Confirming that mean = sum/length:
+mean(x)==(sum(x)/length(x))
+```
+
+## Exercise 1.6
+
+`mtcars["mpg"]` returns the row names and the mpg column. `mtcars[["mpg"]]` only returns the values in the mpg column
+
+```{r}
+identical(mtcars["mpg"], mtcars$mpg)
+identical(mtcars[["mpg"]], mtcars$mpg)
+```
+
+Only `identical(mtcars[["mpg"]], mtcars$mpg)` is `TRUE` because both `mtcars[["mpg"]]` and `mtcars$mpg` only return the values in the mpg column
+
+## Exercise 1.7
+
+```{r}
+# Extract the 17th value of letters
+letters[17]
+```
+
+```{r}
+# Sequence of even numbers from 2 to 26
+even_numbers <- seq(2, 26, by = 2)
+
+# Subset the letters vectors using the even_numbers sequence
+letters[even_numbers]
+```
+
+```{r}
+# Use 8:12 to subset letters.
+letters[8:12]
+```
+
+If I use `[[` instead of `[`, I get the following error message: "attempt to select more than one element in vectorIndex"
+
+## Exercise 1.8
+
+```{r}
+# Replace the 18th value of letters with a missing value (NA)
+letters[18]<-NA
+letters[18]
+```
+
+## Exercise 1.9
+
+```{r}
+#Subset mtcars so that we only see the observations for which cyl == 4.
+mtcars[mtcars$cyl==4, ]
+
+#Subset mtcars so that we only see the observations for which mpg is greater than 23.
+mtcars[mtcars$mpg>23, ]
+```
+
+## Exercise 1.10
+
+The first error (object 'year' not found) occurs because there is no object 'year' loaded in the environment.
+
+Then, the second error ("in unique.default(x, nmax = nmax): unique() applies only to vectors") occurs because R is trying to table the year function found in the lubridate package--it doesn't know to look for the year vector in the palmerpenguins package.
+
+The function `table(year)` attempts to generate a frequency table for values in a vector named "year". You have to tell R to subset the year variable from the penguins dataset (using the \$ operator)
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+search()
+find("year")
+table(penguins$year)
+```
+
+## Exercise 1.11
+
+```{r}
+# Use slice() to extract the even-numbered rows in the penguins dataset.
+
+penguins |> 
+  slice(seq(2, n(), by = 2))
+```
+
+## Exercise 1.12
+
+```{r}
+# Use filter() to extract the observations in the penguins dataset for which species == "Gentoo", island == "Biscoe", and body_mass_g is between 5,000 and 5,500.
+
+penguins |>
+  filter(species=="Gentoo", island == "Biscoe", body_mass_g >=5000, body_mass_g<=5500)
+
+```
