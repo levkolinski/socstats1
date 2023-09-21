@@ -2,6 +2,7 @@
 title: "Exercise_03"
 author: "Lev Kolinski"
 format: html
+embed-resources: true
 editor: visual
 ---
 

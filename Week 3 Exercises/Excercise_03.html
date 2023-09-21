@@ -261,36 +261,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  1     1 Dem   0.75         90          1000    
  2     1 Dem   0.75         90          1000    
  3     1 Dem   0.75         90          1000    
- 4     1 Rep   0.75         90          1000    
+ 4     1 Dem   0.75         90          1000    
  5     1 Dem   0.75         90          1000    
- 6     1 Rep   0.75         90          1000    
- 7     1 Dem   0.75         90          1000    
+ 6     1 Dem   0.75         90          1000    
+ 7     1 Rep   0.75         90          1000    
  8     1 Dem   0.75         90          1000    
  9     1 Dem   0.75         90          1000    
-10     1 Dem   0.75         90          1000    
+10     1 Rep   0.75         90          1000    
 # ℹ 89,990 more rows</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 500 × 2
       id dem_prop
    &lt;int&gt;    &lt;dbl&gt;
- 1     1    0.507
- 2     2    0.54 
- 3     3    0.547
- 4     4    0.517
- 5     5    0.54 
- 6     6    0.493
- 7     7    0.5  
- 8     8    0.567
- 9     9    0.513
-10    10    0.523
+ 1     1    0.52 
+ 2     2    0.517
+ 3     3    0.48 
+ 4     4    0.5  
+ 5     5    0.487
+ 6     6    0.51 
+ 7     7    0.483
+ 8     8    0.547
+ 9     9    0.477
+10    10    0.5  
 # ℹ 490 more rows</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="Excercise_03_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.738</code></pre>
+<pre><code>[1] 0.72</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="Excercise_03_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid" width="672"></p>
@@ -306,12 +306,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculating mean dem_prop</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(results<span class="sc">$</span>dem_prop)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.5186333</code></pre>
+<pre><code>[1] 0.5193733</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculating standard deviation of dem_prop</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(results<span class="sc">$</span>dem_prop)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.02815129</code></pre>
+<pre><code>[1] 0.02952769</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># as sample size increases, the mean gets closers to 0.52</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the standard deviation decreases</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
