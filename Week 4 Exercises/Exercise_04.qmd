@@ -8,6 +8,7 @@ editor: visual
 ```{r echo=FALSE, message=FALSE}
 library(tidyverse)
 library(ggplot2)
+library(SciViews)
 
 theme_set(theme_light(base_family = "Avenir Next Condensed"))
 ```
@@ -18,8 +19,6 @@ Use the mean() function to verify that x exhibits those four behaviors.
 
 ```{r}
 x <- rnorm(100000, mean = 0, sd = 1)
-
-
 mean_x<-mean(x)
 sd_x<-sd(x)
 
@@ -37,6 +36,13 @@ sum(x < mean_x) / length(x)
 
 ```
 
+I verify that x:
+
+1.  The probability that x is within one sd from the mean is roughly 68%
+2.  The probability that x is within 2 sds from the mean is roughly 95%
+3.  The probability that x is above the mean is roughly 50%
+4.  The probability that x is below the mean is roughly 50%
+
 # **4.2**
 
 Use the quantile() function on the x created in the previous exercise. Explain the results
@@ -53,7 +59,9 @@ The `quantile()` function returns a vector of quantiles, or the specific datapoi
 Now modify the probs argument in the quantile() to find the 0.5% and 99.5% percentiles of x.
 
 ```{r}
+# .5% percentile
 quantile(x, probs=0.005)
+# 99.5% quantile
 quantile(x, probs=0.995)
 ```
 
@@ -62,60 +70,46 @@ quantile(x, probs=0.995)
 Use the `mean()` function to verify that the probability of x being between -2.576 *and* 2.576 is roughly 99%.
 
 ```{r}
-lower_bound <- mean_x - 2.576 * sd_x
-upper_bound <- mean_x + 2.576 * sd_x
-
-mean(x >= lower_bound & x <= upper_bound)
+mean(x >= -2.576 & x <= 2.576)
 ```
+
+Yup! The probability that x is between -2.576 and 2.576 is roughly 99%
 
 # 4.5
 
-Let x=x1+...+x20, the sum of 20 independent uniform(0, 1) random variables. In R, create 1000 simulations of x and plot the histogram of their means.
+Let x=x1+...+x20, the sum of 20 independent uniform (0, 1) random variables. In R, create 1000 simulations of x and plot their histogram.
 
 ```{r}
-# Load the ggplot2 library
-library(ggplot2)
+# Create an empty vector to store the sums
+sums <- numeric(1000)
 
-# Set the number of simulations
-num_simulations <- 1000
-
-# Set the number of random variables to sum
-num_variables <- 20
-
-# Create an empty vector to store the means
-means <- numeric(num_simulations)
-
-# Perform the simulations and calculate the means
-for (i in 1:num_simulations) {
+# Perform the simulations
+for (i in 1:1000) {
   # Generate 20 independent uniform(0, 1) random variables and sum them
-  simulation <- sum(runif(num_variables))
-  
-  # Store the mean in the 'means' vector
-  means[i] <- simulation / num_variables
+  sums[i] <- sum(runif(n=20, min = 0, max=1))
+
 }
 
 # Create a data frame for ggplot
-data <- data.frame(means)
+data <- data.frame(sums)
 
 # Create a histogram plot using ggplot
-ggplot(data, aes(x = means)) +
+ggplot(data, aes(x = sums)) +
   geom_histogram(binwidth = 0.1, fill = "blue", color = "black") +
-  labs(title = "Histogram of Means of 1000 Simulations of Sum of 20 Uniform(0, 1) Random Variables",
-       x = "Mean",
+  labs(title = "Histogram of 1000 Simulations of Sum of 20 Uniform (0, 1) Random Variables",
+       x = "Sum",
        y = "Frequency")
 ```
 
 Use the sd() function on the sampling distribution simulated earlier, then compare this value to the standard error given by....
 
 ```{r}
-sd(means)
+sd(sums)
 
-sd(runif(20)) / sqrt(20)
-
-
+sqrt(20/12)
 ```
 
-These two functions returned two super slightly different numbers (off by a difference of .001)\--they pretty much mach.
+These two functions returned two super slightly different numbers (off by a difference of a few hundredths)\--they pretty much match.
 
 # 4.6
 
@@ -190,7 +184,7 @@ ci95_sims_2500 <- c(lower_bound95_sims_2500, upper_bound95_sims_2500)
 ```
 
 ```{r}
-# insepcting standard deviations and confidence interavls of results based on survey size
+# inspecting standard deviations and confidence interavls of results based on survey size
 
 # n=5--the 95% confidence interval is not 2 standard errors away from 0.33
 sd(sims_5$prop)
