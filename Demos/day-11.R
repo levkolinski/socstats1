@@ -150,7 +150,7 @@ ggplot(nulls,
        aes(x=diff))+
   geom_histogram(color="white",
                  boundary=0.5,
-                 binwidth=0.01)+
+                 binwidth=0.005)+
   geom_vline(xintercept=obs_diff,
              color="firebrick",
              linetype="dashed")
