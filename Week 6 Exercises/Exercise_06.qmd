@@ -1,0 +1,288 @@
+---
+title: "Exercise_06"
+author: "Lev Kolinski"
+format: html
+editor: visual
+---
+
+```{r echo = FALSE}
+library(tidyverse,warn.conflicts = FALSE)
+library(infer)
+library(janitor,warn.conflicts = FALSE) ## for convenient "table" functions
+library(gssr)    ## for access to GSS data
+
+## You can choose another ggplot2 theme, obviously. 
+## Windows users might not have this font available!
+theme_set(theme_light()) 
+```
+
+# 6.1.2
+
+You are designing a survey to estimate the proportion of individuals who will vote Democrat. Assuming that respondents are a simple random sample of the voting population, how many people do you need to poll so that the standard error is less than 5 percentage points?
+
+We know that the true proportion of people voting Democrat is 0.53
+
+Sample size formula: $n=[((Z *sqrt(p*(1-p)))/E]^2$
+
+```{r}
+
+Z <- 1.96 # Z-score for 95% confidence level
+p <- 0.53 # Estimated proportion of people voting Democrat
+E <- 0.05 # Margin of error
+sample_size <- ((Z * sqrt(p * (1 - p))) / E)^2
+round(sample_size)
+```
+
+**We need to sample at least 383 people so that the standard error is less that 5%**
+
+# 6.1.5
+
+What is the probability of observing the "true" value ( p= 0.53 ) under the null?
+
+```{r}
+# Simulating the null distribution (50-50 D/R)
+draws <- rbinom(1e4, size = 1000, prob = 0.50)
+null <- draws / 1000
+null<-data.frame(null)
+
+# How often does null distribution get p=0.53?
+null_is_point53<-null |> 
+  filter(null==0.53)
+
+num_obs_of_point53_null<-nrow(null_is_point53)
+
+# probability of observing p=0.53 under the null:
+num_obs_of_point53_null/1000
+```
+
+What is the probability of observing prop_hat under the null? Is this statistically significant if the confidence level (alpha) is set to 0.05?
+
+```{r}
+# getting p_hat
+one_dataset <- rbinom(1000, size = 1, prob = 0.53)
+prop_hat <- mean(one_dataset)
+prop_hat
+
+# gett null
+draws <- rbinom(1e4, size = 1000, prob = 0.50)
+null <- draws / 1000
+
+
+# Calculate the proportion of null samples that are equal to prop_hat
+probability <- sum(null == prop_hat) / length(null)
+probability
+
+# Check for significance if alpha = 0.05 
+alpha <- 0.05
+is_significant <-probability<=alpha
+
+# is the result significant?
+is_significant
+
+```
+
+# 6.1.7
+
+Verify that this standard error formula corresponds to sd(theta_distribution).
+
+```{r}
+p1 <- 0.5
+n1 <- 120
+p2 <- 0.6
+n2 <- 90
+
+S <- 1e5
+draws1 <- rbinom(S, size = n1, prob = p1) 
+proportions1 <- draws1 / n1 
+draws2 <- rbinom(S, size = n2, prob = p2)
+proportions2 <- draws2 / n2
+theta_distribution <- proportions1 - proportions2
+
+standard_error_using_sd_function<-sd(theta_distribution)
+standard_error_using_sd_function
+
+standard_error_using_formula<-sqrt((p1 * (1 - p1) / n1) + (p2 * (1 - p2) / n2))
+standard_error_using_formula
+
+# testing if equal
+standard_error_using_sd_function==standard_error_using_formula
+
+# the values are super close but not exactly equal!
+```
+
+# 6.1.8
+
+A randomized experiment is performed within a survey. 1000 people are contacted. Half the people contacted are promised a \$5 incentive to participate, and half are not promised an incentive. The result is a 50% response rate among the treated group and 40% response rate among the control group. Give an estimate and standard error of the difference in proportions.
+
+```{r}
+n_treated<-500
+n_not_treated<-500
+
+response_treated<-0.5
+response_not_treated<-0.4
+
+#Estimate of difference in proportions:
+p_diff <- response_treated - response_not_treated
+p_diff 
+
+# standard error of difference in proportions
+standard_error<-sqrt(
+  (response_treated * (1 - response_treated) / n_treated) +
+    (response_not_treated * (1 - response_not_treated) / n_not_treated)
+  )
+
+standard_error
+```
+
+```{r echo=FALSE}
+gss18 <- gss_get_yr(2018) 
+
+d <- gss18 |> 
+  select(sex, attend, polviews) |> 
+  haven::zap_missing() |> 
+  mutate(sex = as_factor(sex)) |> 
+  haven::zap_labels() |> 
+  drop_na()
+glimpse(d)
+
+```
+
+# 6.2.1
+
+Go to the GSS website and describe the values of attend and polviews---e.g., what does a value of "4" mean in polviews.
+
+**"Attend" measures how often the respondent attends religious services. The possible responses are as follows:**
+
+| Response | Meaning                    |
+|----------|----------------------------|
+| -100     | Inapplicable               |
+| -99      | No answer                  |
+| -98      | Do not know/Cannot choose  |
+| -97      | Skipped on web             |
+| 0        | Never                      |
+| 1        | Less than once a year      |
+| 2        | About once or twice a year |
+| 3        | Several times a year       |
+| 4        | About once a month         |
+| 5        | 2-3 times a month          |
+| 6        | Nearly every week          |
+| 7        | Every week                 |
+| 8        | Several times a week       |
+
+**"Polviews" measures how much someone classifies themselves as liberal or conservative. The possible responses are as follows:**
+
+| Response | Meaning                      |
+|----------|------------------------------|
+| -100     | Inapplicable                 |
+| -99      | No answer                    |
+| -98      | Do not know/Cannot choose    |
+| -97      | Skipped on web               |
+| 1        | Extremely liberal            |
+| 2        | Liberal                      |
+| 3        | Slightly liberal             |
+| 4        | Moderate, middle of the road |
+| 5        | Slightly conservative        |
+| 6        | Conservative                 |
+| 7        | Extremely conservative       |
+
+# 6.2.2
+
+Repeat what we did in class with Steve, but compare the weekly variable to a new variable call conservative.
+
+```{r}
+d <- d |> 
+  mutate(conservative = if_else(polviews >= 5, 1L, 0L),
+         weekly = if_else(attend >= 7, 1L, 0L)) |> 
+  select(conservative, weekly) |> 
+  drop_na() |> 
+  mutate(polviews = if_else(conservative == 1, "Conservative", "Not_Conservative"))
+
+# cross-tab
+d |> 
+  tabyl(conservative, weekly) |> 
+  adorn_percentages("row") |>
+  adorn_pct_formatting(digits = 2) |> 
+  adorn_ns()
+
+# graph
+d |> 
+  group_by(polviews) |> 
+  summarize(percent = mean(weekly)*100) |> 
+  ggplot(aes(x = polviews,
+             y = percent,
+             fill = polviews)) +
+  ylab("Percent attending services at least weekly")+
+  xlab(NULL)+
+  geom_col() +
+  coord_flip()
+
+```
+
+# 6.2.2
+
+Is the difference in proportions between conservative and weekly statistically significant?
+
+```{r}
+boot_dist <- 
+  d |> 
+  specify(weekly ~ polviews) |> 
+  generate(reps = 1000,
+           type = "bootstrap") |> 
+  calculate(stat = "diff in means",
+            order = c("Conservative", "Not_Conservative"))
+
+ci <- boot_dist |> 
+  get_confidence_interval(level = .95)
+ci
+
+boot_dist |> 
+  visualize() +
+  shade_ci(ci)
+
+# hypothesis testing
+obs_diff <- mean(d$weekly[d$polviews=="Conservative"]) - 
+  mean(d$weekly[d$polviews=="Not_Conservative"])
+
+# create null distribution
+null_dist <- d |> 
+  specify(weekly ~ polviews) |> 
+  hypothesize(null = "independence") |> 
+  generate(reps = 1000,
+           type = "permute") |> 
+  calculate(stat = "diff in means",
+            order = c("Conservative", "Not_Conservative")) 
+
+null_dist |> 
+  get_p_value(obs_diff, 
+              direction = "both")
+
+null_dist |> 
+  visualize() +
+  shade_p_value(obs_diff,
+                direction = "both")
+
+# yes, difference in proportions is stastically significant
+```
+
+# 6.2.4
+
+On the x-axis of each plot, the "attend" response values are plotted in ascending order. The left-most column of each plot represents the polviews of those who never attend religious services, while the right-most column represents the polviews of those who attend religious services several times each week.
+
+On the y-axis of each plot, the "polviews" response values are plotted in ascending order. The bottom-most row of each plot represents the religious service attendance patterns of those who identify as as extremely liberal, while the upper-most row represents the religious service attendance patterns of those who identify as extremely conservative.
+
+Generally, we see that attendance patterns seem more different when looking at the political extremes (e.g., 0 or 7) than when looking at more moderate political views.
+
+Here are the same values represented using the tabyl() function:
+
+```{r}
+gss18 |> 
+  select(sex, attend, polviews) |> 
+  haven::zap_missing() |> 
+  mutate(sex = as_factor(sex)) |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  tabyl(polviews, attend) |> 
+  adorn_percentages("row") |>
+  adorn_pct_formatting(digits = 2) |> 
+  adorn_ns()
+```
