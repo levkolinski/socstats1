@@ -155,7 +155,7 @@ For the panel data and documentation, type e.g. data(gss_panel08_long) and data(
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># probability of observing p=0.53 under the null:</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>num_obs_of_point53_null<span class="sc">/</span><span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.032</code></pre>
+<pre><code>[1] 0.04</code></pre>
 </div>
 </div>
 <p>What is the probability of observing prop_hat under the null? Is this statistically significant if the confidence level (alpha) is set to 0.05?</p>
@@ -165,7 +165,7 @@ For the panel data and documentation, type e.g. data(gss_panel08_long) and data(
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>prop_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(one_dataset)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>prop_hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.529</code></pre>
+<pre><code>[1] 0.512</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># gett null</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>draws <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="fl">1e4</span>, <span class="at">size =</span> <span class="dv">1000</span>, <span class="at">prob =</span> <span class="fl">0.50</span>)</span>
@@ -176,7 +176,7 @@ For the panel data and documentation, type e.g. data(gss_panel08_long) and data(
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>probability <span class="ot">&lt;-</span> <span class="fu">sum</span>(null <span class="sc">==</span> prop_hat) <span class="sc">/</span> <span class="fu">length</span>(null)</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>probability</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.0045</code></pre>
+<pre><code>[1] 0.0168</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for significance if alpha = 0.05 </span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
@@ -208,7 +208,7 @@ For the panel data and documentation, type e.g. data(gss_panel08_long) and data(
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>standard_error_using_sd_function<span class="ot">&lt;-</span><span class="fu">sd</span>(theta_distribution)</span>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>standard_error_using_sd_function</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.06882797</code></pre>
+<pre><code>[1] 0.06873658</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>standard_error_using_formula<span class="ot">&lt;-</span><span class="fu">sqrt</span>((p1 <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p1) <span class="sc">/</span> n1) <span class="sc">+</span> (p2 <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p2) <span class="sc">/</span> n2))</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>standard_error_using_formula</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -442,7 +442,7 @@ $ polviews &lt;dbl&gt; 6, 5, 4, 7, 3, 4, 5, 4, 6, 4, 4, 3, 2, 5, 2, 6, 2, 4, 6, 
 <pre><code># A tibble: 1 × 2
   lower_ci upper_ci
      &lt;dbl&gt;    &lt;dbl&gt;
-1    0.118    0.195</code></pre>
+1    0.118    0.196</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>boot_dist <span class="sc">|&gt;</span> </span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visualize</span>() <span class="sc">+</span></span>
