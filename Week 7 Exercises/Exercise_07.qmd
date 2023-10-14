@@ -1,0 +1,264 @@
+---
+title: "Exercise_07"
+author: "Lev Kolinski"
+format: html
+editor: visual
+---
+
+## 7.1.1
+
+```{r include = FALSE}
+library(tidyverse, warn.conflicts = FALSE)
+library(gssr)
+library(janitor)
+library(infer)
+gss18 <- gss_get_yr(2018) 
+
+d <- gss18 |> 
+  select(attend, polviews) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(weekly = if_else(attend >= 7, 1L, 0L),
+         attends = if_else(weekly == 1, "Weekly", "Not Weekly"),
+         conservative = if_else(polviews >= 5, 1L, 0L),
+         polview_chr = if_else(conservative==1, "Conservative", "Not Conservative")) |> 
+  relocate(attends,weekly,polview_chr,conservative)
+```
+
+1.  Probability that someone attends religious services weekly
+
+```{r}
+tabyl(d, weekly)
+total_sample<-nrow(d)
+
+prob_attends_church<-497/total_sample*100
+prob_attends_church
+```
+
+Pr(W) = **22.24%**
+
+2.  Probability that someone does NOT attend religious services weekly:
+
+```{r}
+100-prob_attends_church
+```
+
+Pr(W^c^) = **77.76%**
+
+3.  Probability that a person is conservative given that they attend religious services weekly:
+
+```{r}
+tabyl(d, attends, polview_chr) |> 
+  adorn_percentages(denominator = "row") |> 
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(C \| W) = **48.29%**
+
+4.  Probability that a person attends services weekly given that they are conservative
+
+```{r}
+tabyl(d, attends, polview_chr) |> 
+  adorn_percentages(denominator = "col") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(W \| C) = **32.65%**
+
+5.  Probability that a person is conservative given that they do NOT attend services weekly
+
+```{r}
+tabyl(d, attends, polview_chr) |> 
+  adorn_percentages(denominator = "row") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(C \| W^c^) = **28.48%**
+
+6.  Probability that a person attends services weekly AND is conservative
+
+```{r}
+tabyl(d, attends, polview_chr) |> 
+  adorn_percentages(denominator = "all") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(W and C) = **10.74%**
+
+7.  Probability that a person does NOT attend services weekly AND is NOT conservative
+
+```{r}
+tabyl(d, attends, polview_chr) |> 
+  adorn_percentages(denominator = "all") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(W^c^ and C^c^ ) = **55.62%**
+
+8.  If independent, what would be the *joint* probability of W and C?
+
+```{r}
+chisq<-tabyl(d, attends, polview_chr) |> 
+  chisq.test()
+chisq$expected |> 
+  adorn_percentages(denominator = "all")
+```
+
+The joint probability of W and C would be **7.31%**
+
+## 7.1.2
+
+Selecting new variables: marital status and whether or not respondent has children
+
+```{r}
+d2 <- gss18 |> 
+  select(marital, childs) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(married = if_else(marital == 1, 1L, 0L),
+         mar_status_chr = if_else(marital == 1, "Married", "Not Married"),
+         children = if_else(childs >= 1, 1L, 0L),
+         has_children_chr = if_else(children==1, "Has kids", "No kids")) |>
+  relocate(married,mar_status_chr,children,has_children_chr)
+
+```
+
+Contingency table:
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr)
+```
+
+1.  Probability that someone is married
+
+```{r}
+tabyl(d2, mar_status_chr)
+
+prob_married<-996/(996+1347)*100
+prob_married
+```
+
+Pr(M) = **42.51%**
+
+2.  Probability that someone is NOT married
+
+```{r}
+100-prob_married
+```
+
+Pr(M^c^) = **57.49%**
+
+3.  Probability that someone has children given that they are married
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr) |> 
+  adorn_percentages(denominator = "row") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(C \| M) = **85.44%**
+
+4.  Probability that someone is married given that they have kids
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr) |> 
+  adorn_percentages(denominator = "col") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(M \| C) = **50.65%**
+
+5.  Probability that someone has kids given that they are NOT married
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr) |> 
+  adorn_percentages(denominator = "row") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(C \| M^c^) = **61.54%**
+
+6.  Probability that someone is married and has kids
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr) |> 
+  adorn_percentages(denominator = "all") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(M and C) = **36.32%**
+
+7.  Probability that someone is NOT married and does NOT have kids
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr) |> 
+  adorn_percentages(denominator = "row") |>
+  adorn_pct_formatting(digits = 2)
+```
+
+Pr(M^c^ and C^c^) = **38.46%**
+
+8.  If M and C are independent, what would be the joint probability of M and C?
+
+```{r}
+chisq<-tabyl(d2, mar_status_chr, has_children_chr) |> 
+  chisq.test()
+chisq$expected |> 
+  adorn_percentages(denominator = "all")
+```
+
+The joint probability of M and C would be **30.48%**
+
+## 7.2.1
+
+Compare Pr(W\|C) and Pr(W\|C^c^) using the following summary statistics:
+
+1.  Difference in Probabilities
+
+```{r}
+tabyl(d, attends, polview_chr) |> 
+  adorn_percentages(denominator = "col") |>
+  adorn_pct_formatting(digits = 2)
+prob_weekly_given_conservative<-.3265
+prob_weekly_given_not_conservative<-.1713
+
+prob_weekly_given_conservative-prob_weekly_given_not_conservative
+```
+
+There is a **15.52% point difference in probabilities** between the two groups: probability of going to services weekly among those who are conservative AND probability of going to services weekly among those who are not conservative.
+
+2.  Relative risk ratio
+
+```{r}
+prob_weekly_given_conservative/prob_weekly_given_not_conservative
+```
+
+People who are conservative have a probability of attending religious services weekly about **1.9X greater** than those who are not conservative.
+
+3.  Odds ratio
+
+```{r}
+tabyl(d, attends, polview_chr)
+# odds that person who is conservative attends weekly services
+odds_weekly_conservative<-240/495
+
+# odds that a person who is NOT conservative attends weekly services
+odds_weekly_not_conservative<-257/1243
+
+odds_ratio<-odds_weekly_conservative/odds_weekly_not_conservative
+odds_ratio
+```
+
+Conservatives' odds of attending weekly religious services are **2.3X greater** than those who are not conservative
+
+4.  Log odds ratio
+
+```{r}
+log(odds_ratio)
+```
+
+When compared to non-conservative, the log-odds ratio of conservatives attending weekly religious services is **about 0.85**
+
+## 7.2.2
