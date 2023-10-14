@@ -262,3 +262,50 @@ log(odds_ratio)
 When compared to non-conservative, the log-odds ratio of conservatives attending weekly religious services is **about 0.85**
 
 ## 7.2.2
+
+1.  Draw a sampling distribution for the relative risk ratio.
+
+```{r}
+d <- gss18 |> 
+  select(attend, polviews) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na()
+
+d <- d |> 
+  mutate(weekly = if_else(attend >= 7, 1L, 0L),
+         conservative = if_else(polviews >= 5, 1L, 0L)) |> 
+  drop_na() 
+
+boot_rr <- d |> 
+  mutate(conservative_cat = if_else(conservative == 1L, "conservative", "other")) |> 
+  mutate(weekly_cat = if_else(weekly == 1L, "weekly", "not_weekly")) |> 
+  specify(weekly_cat ~ conservative_cat, success="weekly") |> 
+  generate(reps = 1e4, type = "bootstrap") |> 
+  calculate(stat = "ratio of props", order = c("conservative", "other"))
+
+ci_rr <- get_confidence_interval(boot_rr)
+
+boot_rr |> 
+  visualize() +
+  shade_ci(ci_rr)+
+  ggtitle("relative risk ratio")
+```
+
+2.  Draw a sampling distribution for the odds ratio
+
+```{r}
+boot_or <- d |> 
+  mutate(conservative_cat = if_else(conservative == 1L, "conservative", "other")) |> 
+  mutate(weekly_cat = if_else(weekly == 1L, "weekly", "not_weekly")) |> 
+  specify(weekly_cat ~ conservative_cat, success="weekly") |> 
+  generate(reps = 1e4, type = "bootstrap") |> 
+  calculate(stat = "odds ratio", order = c("conservative", "other"))
+
+ci_or <- get_confidence_interval(boot_or)
+
+boot_or |> 
+  visualize() +
+  shade_ci(ci_or)+
+  ggtitle("odds ratio")
+```
