@@ -220,7 +220,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="section-1" class="level2">
 <h2 class="anchored" data-anchor-id="section-1">7.1.2</h2>
-<p>Selecting new variables: marital status and whether or not respondent has children</p>
+<p>Selecting new variables: marital status (M) and whether or not respondent has kids (K)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> gss18 <span class="sc">|&gt;</span> </span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(marital, childs) <span class="sc">|&gt;</span> </span>
@@ -243,7 +243,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <ol type="1">
-<li>Probability that someone is married</li>
+<li>Probability that someone is married: Pr(M)</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -260,7 +260,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Pr(M) = <strong>42.51%</strong></p>
 <ol start="2" type="1">
-<li>Probability that someone is NOT married</li>
+<li>Probability that someone is NOT married: Pr(M<sup>c</sup>)</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="dv">100</span><span class="sc">-</span>prob_married</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -270,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Pr(M<sup>c</sup>) = <strong>57.49%</strong></p>
 <ol start="3" type="1">
-<li>Probability that someone has children given that they are married</li>
+<li>Probability that someone has children given that they are married: Pr(K | M)</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr) <span class="sc">|&gt;</span> </span>
@@ -282,9 +282,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     Not Married   61.54%  38.46%</code></pre>
 </div>
 </div>
-<p>Pr(C | M) = <strong>85.44%</strong></p>
+<p>Pr(K | M) = <strong>85.44%</strong></p>
 <ol start="4" type="1">
-<li>Probability that someone is married given that they have kids</li>
+<li>Probability that someone is married given that they have kids: Pr(M | K)</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr) <span class="sc">|&gt;</span> </span>
@@ -296,9 +296,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     Not Married   49.35%  78.13%</code></pre>
 </div>
 </div>
-<p>Pr(M | C) = <strong>50.65%</strong></p>
+<p>Pr(M | K) = <strong>50.65%</strong></p>
 <ol start="5" type="1">
-<li>Probability that someone has kids given that they are NOT married</li>
+<li>Probability that someone has kids given that they are NOT married: Pr(K | M<sup>c</sup>)</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr) <span class="sc">|&gt;</span> </span>
@@ -310,9 +310,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     Not Married   61.54%  38.46%</code></pre>
 </div>
 </div>
-<p>Pr(C | M<sup>c</sup>) = <strong>61.54%</strong></p>
+<p>Pr(K | M<sup>c</sup>) = <strong>61.54%</strong></p>
 <ol start="6" type="1">
-<li>Probability that someone is married and has kids</li>
+<li>Probability that someone is married and has kids: Pr(M and K)</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr) <span class="sc">|&gt;</span> </span>
@@ -324,9 +324,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     Not Married   35.38%  22.11%</code></pre>
 </div>
 </div>
-<p>Pr(M and C) = <strong>36.32%</strong></p>
+<p>Pr(M and K) = <strong>36.32%</strong></p>
 <ol start="7" type="1">
-<li>Probability that someone is NOT married and does NOT have kids</li>
+<li>Probability that someone is NOT married and does NOT have kids: Pr(M<sup>c</sup> and K<sup>c</sup>)</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr) <span class="sc">|&gt;</span> </span>
@@ -338,9 +338,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     Not Married   61.54%  38.46%</code></pre>
 </div>
 </div>
-<p>Pr(M<sup>c</sup> and C<sup>c</sup>) = <strong>38.46%</strong></p>
+<p>Pr(M<sup>c</sup> and K<sup>c</sup>) = <strong>38.46%</strong></p>
 <ol start="8" type="1">
-<li>If M and C are independent, what would be the joint probability of M and C?</li>
+<li>If M and K are independent, what would be the joint probability of M and K?</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>chisq<span class="ot">&lt;-</span><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr) <span class="sc">|&gt;</span> </span>
@@ -353,7 +353,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     Not Married 0.4122231 0.1626809</code></pre>
 </div>
 </div>
-<p>The joint probability of M and C would be <strong>30.48%</strong></p>
+<p>The joint probability of M and K would be <strong>30.48%</strong></p>
 </section>
 <section id="section-2" class="level2">
 <h2 class="anchored" data-anchor-id="section-2">7.2.1</h2>
@@ -426,7 +426,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="section-3" class="level2">
 <h2 class="anchored" data-anchor-id="section-3">7.2.2</h2>
 <ol type="1">
-<li>Draw a sampling distribution for the relative risk ratio.</li>
+<li>Draw a sampling distribution for the relative risk ratio between Pr(W|C) and Pr(W|C<sup>c</sup>).</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> gss18 <span class="sc">|&gt;</span> </span>
@@ -454,13 +454,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>boot_rr <span class="sc">|&gt;</span> </span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visualize</span>() <span class="sc">+</span></span>
 <span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shade_ci</span>(ci_rr)<span class="sc">+</span></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"relative risk ratio"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"relative risk ratio: Pr(W|C) and Pr(W|C^c)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Exercise_07_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <ol start="2" type="1">
-<li>Draw a sampling distribution for the odds ratio</li>
+<li>Draw a sampling distribution for the odds ratio between Pr(W|C) and Pr(W|C<sup>c</sup>).</li>
 </ol>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>boot_or <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
@@ -477,9 +477,122 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>boot_or <span class="sc">|&gt;</span> </span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visualize</span>() <span class="sc">+</span></span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shade_ci</span>(ci_or)<span class="sc">+</span></span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"odds ratio"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"odds ratio: Pr(W|C) and Pr(W|C^c)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Exercise_07_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="section-4" class="level2">
+<h2 class="anchored" data-anchor-id="section-4">7.2.3</h2>
+<p>Compare Pr(M|K) and Pr(M|K<sup>c</sup>) using the following summary statistics:</p>
+<ol type="1">
+<li>Difference in Probabilities</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr) <span class="sc">|&gt;</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_percentages</span>(<span class="at">denominator =</span> <span class="st">"col"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">adorn_pct_formatting</span>(<span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> mar_status_chr Has kids No kids
+        Married   50.65%  21.87%
+    Not Married   49.35%  78.13%</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>prob_married_given_kids<span class="ot">&lt;-</span>.<span class="dv">5065</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>prob_married_given_no_kids<span class="ot">&lt;-</span>.<span class="dv">2187</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>prob_married_given_kids<span class="sc">-</span>prob_married_given_no_kids</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2878</code></pre>
+</div>
+</div>
+<p>There is a <strong>28.78% point difference in probabilities</strong> between the two groups: probability of being married among those who have kids and probability of being married among those who do NOT have kids.</p>
+<ol start="2" type="1">
+<li>Relative risk ratio</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>prob_married_given_kids<span class="sc">/</span>prob_married_given_no_kids</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.315958</code></pre>
+</div>
+</div>
+<p>People who have kids have a probability of being married about <strong>2.32X greater</strong> than those who do not have kids.</p>
+<ol start="3" type="1">
+<li>Odds ratio</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tabyl</span>(d2, mar_status_chr, has_children_chr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> mar_status_chr Has kids No kids
+        Married      851     145
+    Not Married      829     518</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># odds that person who has kids is married</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>odds_married_yes_kids<span class="ot">&lt;-</span><span class="dv">851</span><span class="sc">/</span><span class="dv">829</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a><span class="co"># odds that a person who does NOT have kids is married</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>odds_married_no_kids<span class="ot">&lt;-</span><span class="dv">145</span><span class="sc">/</span><span class="dv">518</span></span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>odds_ratio_married_kids<span class="ot">&lt;-</span>odds_married_yes_kids<span class="sc">/</span>odds_married_no_kids</span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>odds_ratio_married_kids</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3.667219</code></pre>
+</div>
+</div>
+<p>Respondents with kids’ odds of being married is about <strong>3.67X greater</strong> than those who do not have kids.</p>
+<ol start="4" type="1">
+<li>Log odds ratio</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">log</span>(odds_ratio_married_kids)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.299433</code></pre>
+</div>
+</div>
+<p>When compared to respondents without kids, the log-odds ratio of respondents with kids being married is <strong>about 1.30.</strong></p>
+</section>
+<section id="section-5" class="level2">
+<h2 class="anchored" data-anchor-id="section-5">7.2.4</h2>
+<ol type="1">
+<li>Draw a sampling distribution for the relative risk ratio between Pr(M|K) and Pr(M|K<sup>c</sup>).</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>boot_rr_d2 <span class="ot">&lt;-</span> d2 <span class="sc">|&gt;</span> </span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">specify</span>(mar_status_chr <span class="sc">~</span> has_children_chr, <span class="at">success=</span><span class="st">"Married"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate</span>(<span class="at">reps =</span> <span class="fl">1e4</span>, <span class="at">type =</span> <span class="st">"bootstrap"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calculate</span>(<span class="at">stat =</span> <span class="st">"ratio of props"</span>, <span class="at">order =</span> <span class="fu">c</span>(<span class="st">"Has kids"</span>, <span class="st">"No kids"</span>))</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>ci_rr_d2 <span class="ot">&lt;-</span> <span class="fu">get_confidence_interval</span>(boot_rr_d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Using `level = 0.95` to compute confidence interval.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>boot_rr_d2 <span class="sc">|&gt;</span> </span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visualize</span>() <span class="sc">+</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shade_ci</span>(ci_rr_d2)<span class="sc">+</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"relative risk ratio: Pr(M|K) and Pr(M|K^c)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Exercise_07_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ol start="2" type="1">
+<li>Draw a sampling distribution for the odds ratio between Pr(M|K) and Pr(M|K<sup>c</sup>).</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>boot_or_d2 <span class="ot">&lt;-</span> d2 <span class="sc">|&gt;</span> </span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">specify</span>(mar_status_chr <span class="sc">~</span> has_children_chr, <span class="at">success=</span><span class="st">"Married"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate</span>(<span class="at">reps =</span> <span class="fl">1e4</span>, <span class="at">type =</span> <span class="st">"bootstrap"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calculate</span>(<span class="at">stat =</span> <span class="st">"odds ratio"</span>, <span class="at">order =</span> <span class="fu">c</span>(<span class="st">"Has kids"</span>, <span class="st">"No kids"</span>))</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>ci_or_d2 <span class="ot">&lt;-</span> <span class="fu">get_confidence_interval</span>(boot_or_d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Using `level = 0.95` to compute confidence interval.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>boot_or_d2 <span class="sc">|&gt;</span> </span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">visualize</span>() <span class="sc">+</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shade_ci</span>(ci_or_d2)<span class="sc">+</span></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"odds ratio: Pr(M|K) and Pr(M|K^c)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Exercise_07_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>

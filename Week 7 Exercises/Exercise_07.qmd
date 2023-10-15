@@ -109,7 +109,7 @@ The joint probability of W and C would be **7.31%**
 
 ## 7.1.2
 
-Selecting new variables: marital status and whether or not respondent has children
+Selecting new variables: marital status (M) and whether or not respondent has kids (K)
 
 ```{r}
 d2 <- gss18 |> 
@@ -131,7 +131,7 @@ Contingency table:
 tabyl(d2, mar_status_chr, has_children_chr)
 ```
 
-1.  Probability that someone is married
+1.  Probability that someone is married: Pr(M)
 
 ```{r}
 tabyl(d2, mar_status_chr)
@@ -142,7 +142,7 @@ prob_married
 
 Pr(M) = **42.51%**
 
-2.  Probability that someone is NOT married
+2.  Probability that someone is NOT married: Pr(M^c^)
 
 ```{r}
 100-prob_married
@@ -150,7 +150,7 @@ Pr(M) = **42.51%**
 
 Pr(M^c^) = **57.49%**
 
-3.  Probability that someone has children given that they are married
+3.  Probability that someone has children given that they are married: Pr(K \| M)
 
 ```{r}
 tabyl(d2, mar_status_chr, has_children_chr) |> 
@@ -158,9 +158,9 @@ tabyl(d2, mar_status_chr, has_children_chr) |>
   adorn_pct_formatting(digits = 2)
 ```
 
-Pr(C \| M) = **85.44%**
+Pr(K \| M) = **85.44%**
 
-4.  Probability that someone is married given that they have kids
+4.  Probability that someone is married given that they have kids: Pr(M \| K)
 
 ```{r}
 tabyl(d2, mar_status_chr, has_children_chr) |> 
@@ -168,9 +168,9 @@ tabyl(d2, mar_status_chr, has_children_chr) |>
   adorn_pct_formatting(digits = 2)
 ```
 
-Pr(M \| C) = **50.65%**
+Pr(M \| K) = **50.65%**
 
-5.  Probability that someone has kids given that they are NOT married
+5.  Probability that someone has kids given that they are NOT married: Pr(K \| M^c^)
 
 ```{r}
 tabyl(d2, mar_status_chr, has_children_chr) |> 
@@ -178,9 +178,9 @@ tabyl(d2, mar_status_chr, has_children_chr) |>
   adorn_pct_formatting(digits = 2)
 ```
 
-Pr(C \| M^c^) = **61.54%**
+Pr(K \| M^c^) = **61.54%**
 
-6.  Probability that someone is married and has kids
+6.  Probability that someone is married and has kids: Pr(M and K)
 
 ```{r}
 tabyl(d2, mar_status_chr, has_children_chr) |> 
@@ -188,9 +188,9 @@ tabyl(d2, mar_status_chr, has_children_chr) |>
   adorn_pct_formatting(digits = 2)
 ```
 
-Pr(M and C) = **36.32%**
+Pr(M and K) = **36.32%**
 
-7.  Probability that someone is NOT married and does NOT have kids
+7.  Probability that someone is NOT married and does NOT have kids: Pr(M^c^ and K^c^)
 
 ```{r}
 tabyl(d2, mar_status_chr, has_children_chr) |> 
@@ -198,9 +198,9 @@ tabyl(d2, mar_status_chr, has_children_chr) |>
   adorn_pct_formatting(digits = 2)
 ```
 
-Pr(M^c^ and C^c^) = **38.46%**
+Pr(M^c^ and K^c^) = **38.46%**
 
-8.  If M and C are independent, what would be the joint probability of M and C?
+8.  If M and K are independent, what would be the joint probability of M and K?
 
 ```{r}
 chisq<-tabyl(d2, mar_status_chr, has_children_chr) |> 
@@ -209,7 +209,7 @@ chisq$expected |>
   adorn_percentages(denominator = "all")
 ```
 
-The joint probability of M and C would be **30.48%**
+The joint probability of M and K would be **30.48%**
 
 ## 7.2.1
 
@@ -263,7 +263,7 @@ When compared to non-conservative, the log-odds ratio of conservatives attending
 
 ## 7.2.2
 
-1.  Draw a sampling distribution for the relative risk ratio.
+1.  Draw a sampling distribution for the relative risk ratio between Pr(W\|C) and Pr(W\|C^c^).
 
 ```{r}
 d <- gss18 |> 
@@ -289,10 +289,10 @@ ci_rr <- get_confidence_interval(boot_rr)
 boot_rr |> 
   visualize() +
   shade_ci(ci_rr)+
-  ggtitle("relative risk ratio")
+  ggtitle("relative risk ratio: Pr(W|C) and Pr(W|C^c)")
 ```
 
-2.  Draw a sampling distribution for the odds ratio
+2.  Draw a sampling distribution for the odds ratio between Pr(W\|C) and Pr(W\|C^c^).
 
 ```{r}
 boot_or <- d |> 
@@ -307,5 +307,89 @@ ci_or <- get_confidence_interval(boot_or)
 boot_or |> 
   visualize() +
   shade_ci(ci_or)+
-  ggtitle("odds ratio")
+  ggtitle("odds ratio: Pr(W|C) and Pr(W|C^c)")
+```
+
+## 7.2.3
+
+Compare Pr(M\|K) and Pr(M\|K^c^) using the following summary statistics:
+
+1.  Difference in Probabilities
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr) |>
+  adorn_percentages(denominator = "col") |>
+  adorn_pct_formatting(digits = 2)
+prob_married_given_kids<-.5065
+prob_married_given_no_kids<-.2187
+
+prob_married_given_kids-prob_married_given_no_kids
+```
+
+There is a **28.78% point difference in probabilities** between the two groups: probability of being married among those who have kids and probability of being married among those who do NOT have kids.
+
+2.  Relative risk ratio
+
+```{r}
+prob_married_given_kids/prob_married_given_no_kids
+```
+
+People who have kids have a probability of being married about **2.32X greater** than those who do not have kids.
+
+3.  Odds ratio
+
+```{r}
+tabyl(d2, mar_status_chr, has_children_chr)
+# odds that person who has kids is married
+odds_married_yes_kids<-851/829
+
+# odds that a person who does NOT have kids is married
+odds_married_no_kids<-145/518
+
+odds_ratio_married_kids<-odds_married_yes_kids/odds_married_no_kids
+odds_ratio_married_kids
+```
+
+Respondents with kids' odds of being married is about **3.67X greater** than those who do not have kids.
+
+4.  Log odds ratio
+
+```{r}
+log(odds_ratio_married_kids)
+```
+
+When compared to respondents without kids, the log-odds ratio of respondents with kids being married is **about 1.30.**
+
+## 7.2.4
+
+1.  Draw a sampling distribution for the relative risk ratio between Pr(M\|K) and Pr(M\|K^c^).
+
+```{r}
+boot_rr_d2 <- d2 |> 
+  specify(mar_status_chr ~ has_children_chr, success="Married") |> 
+  generate(reps = 1e4, type = "bootstrap") |> 
+  calculate(stat = "ratio of props", order = c("Has kids", "No kids"))
+
+ci_rr_d2 <- get_confidence_interval(boot_rr_d2)
+
+boot_rr_d2 |> 
+  visualize() +
+  shade_ci(ci_rr_d2)+
+  ggtitle("relative risk ratio: Pr(M|K) and Pr(M|K^c)")
+```
+
+2.  Draw a sampling distribution for the odds ratio between Pr(M\|K) and Pr(M\|K^c^).
+
+```{r}
+boot_or_d2 <- d2 |> 
+  specify(mar_status_chr ~ has_children_chr, success="Married") |> 
+  generate(reps = 1e4, type = "bootstrap") |> 
+  calculate(stat = "odds ratio", order = c("Has kids", "No kids"))
+
+ci_or_d2 <- get_confidence_interval(boot_or_d2)
+
+boot_or_d2 |> 
+  visualize() +
+  shade_ci(ci_or_d2)+
+  ggtitle("odds ratio: Pr(M|K) and Pr(M|K^c)")
 ```
