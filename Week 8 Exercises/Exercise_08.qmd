@@ -1,0 +1,289 @@
+---
+title: "Exercise_08"
+author: "Lev Kolinski"
+format: html
+editor: visual
+---
+
+```{r}
+#| echo: false
+#| warning: false
+library(tidyverse, warn.conflicts = FALSE)
+library(gssr)
+library(janitor)
+library(infer)
+gss18 <- gss_get_yr(2018)
+```
+
+# Getting Started
+
+**Describing variables (won't end up using all of them for analyses!):**
+
+| Variable   | Definition                                                                                                                        |
+|------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `wrkslf`   | Whether respondent works for self or not (1=self-employed, 2 = works for someone else)                                            |
+| `attend`   | How often respondent attends religious services (range: 0= never, 8 = several times a week)                                       |
+| `polviews` | How respondent identifies politically (range: 1 = extremely liberal, 7 = extremely conservative)                                  |
+| `cappun`   | Does respondent favor or oppose the death penalty for persons convicted of murder (1 = favor, 2 = oppose)                         |
+| `suicide3` | Does respondent think that a person has a right to end their own life if they have dishonored his or her family (1 = yes, 2 = no) |
+| `xmarsex`  | How respondent feels about extra marital sex (range: 1 = always wrong, 4 = not wrong at all)                                      |
+| `degree`   | Respondent's education level (range: 0 = less than high school, 4 = graduate degree)                                              |
+| `padeg`    | Respondents father's education level (range: 0 = less than high school, 4 = graduate degree)                                      |
+| `madeg`    | Respondents mother's education level (range: 0 = less than high school, 4 = graduate degree)                                      |
+| `sex`      | Respondent's sex (1 = male, 2 = female)                                                                                           |
+| `race`     | Respondent's race (1 = white, 2 = black, 3 = other)                                                                               |
+| `born`     | Was respondent born in the US (1 = yes, 2 = no)                                                                                   |
+| `mcsds6`   | Does respondent like to gossip at times (1 = true, 2 = false)                                                                     |
+| `condom`   | Did respondent use condom last time they had sex (1 = yes, 2 = no)                                                                |
+| `marital`  | Respondent's marital status (1 = married, 2= widowed, 3 = divorced, 4 = separated, 5 = never married)                             |
+| `god`      | Respondent's confidence in existence of god (range: 1 = don't believe, 6 = no doubts)                                             |
+
+# Contingency Table 1
+
+Does weekly (or more frequent) religous service attendance (X) predict whether or not someone is conservative (Y)?
+
+```{r}
+# conservative and weekly church attendnace
+d1 <- gss18 |> 
+  select(attend, polviews) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(weekly = if_else(attend >= 7, 1L, 0L),
+         attends = if_else(weekly == 1, "Weekly", "Not Weekly"),
+         conservative = if_else(polviews >= 5, 1L, 0L),
+         polview_chr = if_else(conservative==1, "Conservative", "Not Conservative")) |> 
+  relocate(attends,weekly,polview_chr,conservative)
+
+tabyl(d1, attends, polview_chr)
+
+# linear model
+linear_d1<-lm(data=d1, conservative~weekly)
+summary(linear_d1)
+
+# logistic model
+logit_d1<-glm(conservative ~ weekly, data = d1, family = "binomial")
+summary(logit_d1)
+```
+
+**Interpreting linear model**: The beta coefficient of 0.1980873 indicates that for respondents who attend religious services at least weekly (X), the probability of being conservative (Y) increase by approximately 0.198 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The positive beta coefficient means that when respondents say they do attend religious services at least weekly, the log-odds of being conservative (Y) increases by approximately 0.8522882.
+
+# **Contingency Table 2**
+
+Does whether or not someone is conservative (X) predict whether or not they agree with capital punishment (Y)?
+
+```{r}
+
+# conservative and capital punishment
+d2<-gss18 |> 
+  select(cappun, polviews) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(pro_death_penalty = if_else(cappun == 1, 1L, 0L),
+         capital_pubisment_chr = if_else(pro_death_penalty == 1, "Favor", "Don't Favor"),
+         conservative = if_else(polviews >= 5, 1L, 0L),
+         polview_chr = if_else(conservative==1, "Conservative", "Not Conservative")) |> 
+  relocate(capital_pubisment_chr,pro_death_penalty,polview_chr,conservative)
+
+tabyl(d2, capital_pubisment_chr, polview_chr)
+
+# linear model
+linear_d2<-lm(data=d2, pro_death_penalty~conservative)
+summary(linear_d2)
+
+# logistic model
+logit_d2<-glm(pro_death_penalty ~ conservative, data = d2, family = "binomial")
+summary(logit_d2)
+```
+
+**Interpreting linear model**: The beta coefficient of 0.1750262 indicates that for respondents who are conservative (X), the probability of favoring the death penalty (Y) increase by approximately 0.175 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The positive beta coefficient means that for respondents who are conservative (X), the log-odds of favoring capital punishment (Y) increases by approximately 0.7955526.
+
+# Contingency Table 3
+
+Does whether or not someone is an aetheiest (X) predict whether or not someone likes to gossip (Y)?
+
+```{r}
+# gossip vs believe in god
+d3<-gss18 |> 
+  select(mcsds6, god) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(gossip_true = if_else(mcsds6 == 1, 1L, 0L),
+         like_to_gossip_chr = if_else(gossip_true == 1, "True", "False"),
+         atheist = if_else(god < 2, 1L, 0L),
+         believe_in_god_chr = if_else(atheist==1, "Atheist", "Not Atheist")) |> 
+  relocate(like_to_gossip_chr,gossip_true,believe_in_god_chr,atheist)
+
+tabyl(d3, like_to_gossip_chr, believe_in_god_chr)
+
+# linear model
+linear_d3<-lm(data=d3, gossip_true~atheist)
+summary(linear_d3)
+
+# logistic model
+logit_d3<-glm(gossip_true ~ atheist, data = d3, family = "binomial")
+summary(logit_d3)
+```
+
+**Interpreting linear model**: The beta coefficient of -0.11117 indicates that for respondents who are atheist (X), the probability of enjoying gossip at times (Y) decreases by approximately 0.11117 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The negative beta coefficient means that for respondents who are atheist (X), the log-odds of enjoying gossip at times (Y) decreases by approximately 0.45079.
+
+# Contingency Table 4
+
+Does whether or not someone is a conservative (X) predict whether or not they used a condom last time they had sex (Y)?
+
+```{r}
+# conservative vs condom
+d4<-gss18 |> 
+  select(condom, polviews) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(yes_condom = if_else(condom == 1, 1L, 0L),
+         used_condom_chr = if_else(yes_condom == 1, "Yes", "No or other"),
+         conservative = if_else(polviews >= 5, 1L, 0L),
+         polview_chr = if_else(conservative==1, "Conservative", "Not Conservative")) |> 
+  relocate(used_condom_chr,yes_condom,polview_chr,conservative)
+
+tabyl(d4, used_condom_chr, polview_chr)
+
+# linear model
+linear_d4<-lm(data=d4, yes_condom~conservative)
+summary(linear_d4)
+
+# logistic model
+logit_d4<-glm(yes_condom ~ conservative, data = d4, family = "binomial")
+summary(logit_d4)
+```
+
+**Interpreting linear model**: The beta coefficient of -0.02813 indicates that for respondents who are conservative (X), the probability of reporting that they used a condom last time they had sex (Y) decreases by approximately 0.02813 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The negative beta coefficient means that for respondents who are conservative (X), the log-odds of having worn a condom last time they had sex (Y) decreases by approximately 0.17217.
+
+# Contingency Table 5
+
+Does whether or not someone thinks suicide is okay if a person has dishonored their family (X) predict whether or not they support capital punishment (Y)?
+
+```{r}
+# suicide is okay if dishonored family vs capital punishment
+d5<-gss18 |> 
+  select(cappun, suicide3) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(pro_death_penalty = if_else(cappun == 1, 1L, 0L),
+         capital_punisment_chr = if_else(pro_death_penalty == 1, "Favor", "Don't Favor"),
+         suicide_okay_if_dishonored_fam = if_else(suicide3 == 1, 1L, 0L),
+         suicide_if_dishonored_fam_chr = if_else(suicide_okay_if_dishonored_fam==1, "suicide okay", "suicide not okay")) |> 
+  relocate(capital_punisment_chr,pro_death_penalty,suicide_if_dishonored_fam_chr,suicide_okay_if_dishonored_fam)
+
+tabyl(d5, capital_punisment_chr, suicide_if_dishonored_fam_chr)
+
+# linear model
+linear_d5<-lm(data=d5, pro_death_penalty~suicide_okay_if_dishonored_fam)
+summary(linear_d5)
+
+# logistic model
+logit_d5<-glm(pro_death_penalty ~ suicide_okay_if_dishonored_fam, data = d5, family = "binomial")
+summary(logit_d5)
+```
+
+**Interpreting linear model**: The beta coefficient of -0.008095 indicates that for respondents who think suicide is okay if a person has dishonored their family (X), the probability of reporting that they are pro death penalty (Y) decreases by approximately 0.008095 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The negative beta coefficient means that for respondents who think suicide is okay if a person has dishonored their family (X), the log-odds of supporting the death penalty (Y) decreases by approximately 0.03522.
+
+# Contingency Table 6
+
+Does whether or not a respondent's father has more than a high school degree (X) predict whether the respondent has more than a high school degree (Y)?
+
+```{r}
+# paternal education vs respondent education
+d6<-gss18 |> 
+  select(degree, padeg) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(r_greater_than_hs_degree = if_else(degree > 1, 1L, 0L),
+         father_greater_than_hs_degree = if_else(padeg >1, 1L, 0L))
+
+tabyl(d6, r_greater_than_hs_degree, father_greater_than_hs_degree)
+
+# linear model
+linear_d6<-lm(data=d6, r_greater_than_hs_degree~father_greater_than_hs_degree)
+summary(linear_d6)
+
+# logistic model
+logit_d6<-glm(r_greater_than_hs_degree ~ father_greater_than_hs_degree, data = d6, family = "binomial")
+summary(logit_d6)
+```
+
+**Interpreting linear model**: The beta coefficient of 0.34554 indicates that for respondents whose fathers have greater than a high school degree (X), the probability of themselves having greater than a high school degree (Y) increases by approximately 0.34554 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The positive beta coefficient means that for respondents whose fathers have greater than a high school degree (X), the log-odds of themselves have greater than a high school degree (Y) increases by approximately 1.44285.
+
+# Contingency Table 7
+
+Does whether or not a respondent's mother has more than a high school degree (X) predict whether the respondent has more than a high school degree (Y)?
+
+```{r}
+# paternal education vs respondent education
+d7<-gss18 |> 
+  select(degree, madeg) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(r_greater_than_hs_degree = if_else(degree > 1, 1L, 0L),
+         mother_greater_than_hs_degree = if_else(madeg >1, 1L, 0L))
+
+tabyl(d7, r_greater_than_hs_degree, mother_greater_than_hs_degree)
+
+# linear model
+linear_d7<-lm(data=d7, r_greater_than_hs_degree~mother_greater_than_hs_degree)
+summary(linear_d7)
+
+# logistic model
+logit_d7<-glm(r_greater_than_hs_degree ~ mother_greater_than_hs_degree, data = d7, family = "binomial")
+summary(logit_d7)
+```
+
+**Interpreting linear model**: The beta coefficient of 0.31160 indicates that for respondents whose mothers have greater than a high school degree (X), the probability of themselves having greater than a high school degree (Y) increases by approximately 0.31160 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The positive beta coefficient means that for respondents whose mothers have greater than a high school degree (X), the log-odds of themselves have greater than a high school degree (Y) increases by approximately 1.29112.
+
+# Contingency Table 8
+
+Does whether or not a respondent is white (X) predict whether the respondent is self-employed (Y)?
+
+```{r}
+# paternal education vs respondent education
+d8<-gss18 |> 
+  select(race, wrkslf) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(r_is_white = if_else(race == 1, 1L, 0L),
+         r_race_as_chr = if_else(r_is_white == 1, "White", "Not white"),
+         r_is_selfemployed = if_else(wrkslf==1, 1L, 0L),
+         r_is_selfemployed_chr = if_else(r_is_selfemployed==1, "Self-employed", "Not self employed"))
+
+tabyl(d8, r_race_as_chr, r_is_selfemployed_chr)
+
+# linear model
+linear_d8<-lm(data=d8, r_is_selfemployed~r_is_white)
+summary(linear_d8)
+
+# logistic model
+logit_d8<-glm(r_is_selfemployed ~ r_is_white, data = d8, family = "binomial")
+summary(logit_d8)
+```
+
+**Interpreting linear model**: The beta coefficient of 0.03091 indicates that for respondents who are white (X), the probability of them being self-employed (Y) increases by approximately 0.03091 times, assuming all other factors are held constant.
+
+**Interpreting logistic model**: The positive beta coefficient means that for respondents who are white (X), the log-odds of them being self-employed (Y) increases by approximately 0.3607.
