@@ -1,0 +1,225 @@
+---
+title: "Exercise_09"
+author: "Lev Kolinski"
+format: html
+editor: visual
+---
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(gssr)
+theme_set(theme_light(base_family = "Optima"))
+
+gss18 <- gss_get_yr(2018) 
+
+d <- gss18 |> 
+  select(attend, polviews, cappun) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  mutate(
+    weekly = if_else(attend >= 7, 1L, 0L),
+    conservative = if_else(polviews >= 5, 1L, 0L),
+    cappun = if_else(cappun == 1, 1L, 0L)
+    ) |> 
+  drop_na() |> 
+  select(cappun, weekly, conservative) 
+```
+
+## Exercise 9.1
+
+```{r}
+# constructing cross tab
+crosstab1 <- table(cp = d$cappun, weekly = d$weekly)
+crosstab1
+
+# contingency table with column percentages
+prop.table(crosstab1, margin = 2)
+```
+
+**Express the relationship between `cappun` ( Y ) and `weekly` ( X ) as a linear probability model.**
+
+```{r}
+linear_model_1<-lm(cappun~weekly, data=d)
+linear_model_1$coefficients
+```
+
+As a linear probability model, $\alpha$ = 0.6414 and $\beta$ = -0.0457
+
+This means that the probability of a respondent favoring the death penalty is roughly 4.57 percentage points lower if they attend church weekly.
+
+**Express the relationship between `cappun` ( Y ) and `weekly` ( X ) as a logistic regression model.**
+
+```{r}
+logit_d1<-glm(cappun ~ weekly, data = d, family = "binomial")
+logit_d1$coefficients
+```
+
+As a logistic regression model, $\alpha$ = 0.5815 and $\beta$ = -0.1939
+
+The negative beta coefficient means that when respondents say they do attend religious services at least weekly, the log-odds of favoring the death penalty (Y) decreases by approximately 0.1939.
+
+**BONUS: Calculate the standard error, 95% CI of** $\beta$ **in the linear model**
+
+```{r}
+summary(linear_model_1)
+
+confint.lm(linear_model_1, level=0.95)
+```
+
+The standard error of $\beta$ is 0.02534. The 95% confidence interval is (-0.095, 0.004)
+
+## Exercise 9.1.2
+
+```{r}
+crosstab2 <- table(cp = d$cappun, weekly = d$weekly, conservative = d$conservative)
+
+#2x2x2 table
+as_tibble(crosstab2) |> 
+  mutate(cp = if_else(cp == "1", "favors", "opposes")) |> 
+  pivot_wider(names_from = cp, values_from = n)
+```
+
+**Express the relationship between `cappun` ( Y ) and `weekly` ( X1 ), and `conservative` ( X2) as a linear probability model.**
+
+```{r}
+linear_model_crosstab2<-lm(cappun~weekly+conservative+weekly*conservative, data=d)
+linear_model_crosstab2$coefficients
+```
+
+$\alpha$ = 0.5844
+
+$\beta_1$ = -0.0676 (attending religious services at least weekly decreases probability of favoring capital punishment by 6.76 percentage points)
+
+$\beta_2$ = 0.1986 (being conservative increases the probability of favoring capital punishment by 19.86 percentage points)
+
+$\beta_3$ = -0.0370 (attending religious services at least weekly AND being conservative increases probability of favoring capital punishment by $\beta_1$ +$\beta_2$ +$\beta_3$ = 9.4 percentage points)
+
+Express **the relationship between `cappun` ( Y ) and `weekly` ( X1 ), and `conservative` ( X2) as a logistic regression model.**
+
+```{r}
+logit_crosstab2<-glm(cappun ~ weekly+conservative+conservative*weekly, data = d, family = "binomial")
+logit_crosstab2$coefficients
+```
+
+$\alpha$ = 0.3409
+
+$\beta_1$ = -0.2736 (attending religious services at least weekly decreases the log odds of favoring capital punishment by 0.2736)
+
+$\beta_2$ = 0.9422 (being conservative increases the log odds of favoring capital punishment by 0.9422)
+
+$\beta_3$ = -0.2630 (attending religious services at least weekly AND being conservative increases the log odds of favoring capital punishment by $\beta_1$ +$\beta_2$ +$\beta_3$ = 1.5)
+
+**BONUS: Calculate standard error of** $\beta_1$ **in the linear probability model and give the 95% CI.**
+
+```{r}
+summary(linear_model_crosstab2)
+confint.lm(linear_model_crosstab2, level=0.95)
+```
+
+The standard error of $\beta_1$is 0.03374. The confidence interval is (-0.1338, -0.0014)
+
+## Exercise 9.2
+
+```{r}
+d_92<-gss18 |> 
+  select(degree, madeg, padeg) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(r_greater_than_hs_degree = if_else(degree > 1, 1L, 0L),
+         mother_greater_than_hs_degree = if_else(madeg >1, 1L, 0L),
+         father_greater_than_hs_degree = if_else(padeg >1, 1L, 0L))
+
+crosstab92 <- table(r_greater_than_hs_degree = d_92$r_greater_than_hs_degree, mother_greater_than_hs_degree = d_92$mother_greater_than_hs_degree, father_greater_than_hs_degree = d_92$father_greater_than_hs_degree)
+
+#2x2x2 table
+as_tibble(crosstab92) |> 
+  mutate(r_greater_than_hs_degree = if_else(r_greater_than_hs_degree == "1", "HS Grad", "Not HS Grad")) |> 
+  pivot_wider(names_from = r_greater_than_hs_degree, values_from = n)
+
+```
+
+**Express the relationship between `r_greater_than_hs_degree` ( Y ) and `mother_greater_than_hs_degree` ( X1 ), and `father_greater_than_hs_degree` ( X2) as a linear probability model. In other words, is a respondent more likely to have a high school degree or greater if their father, mother, or both parents have a high school degree or greater?**
+
+```{r}
+linear_model_crosstab92<-lm(r_greater_than_hs_degree~mother_greater_than_hs_degree+father_greater_than_hs_degree+mother_greater_than_hs_degree*father_greater_than_hs_degree, data=d_92)
+
+linear_model_crosstab92$coefficients
+```
+
+$\alpha$ = 0.3178
+
+$\beta_1$ = 0.2606 (respondent's mother having high school degree or greater increases probability of respondent having high school degree or greater by 26.06 percentage points)
+
+$\beta_2$ = 0.3056 (respondent's father having high school degree or greater increases probability of respondent having high school degree or greater by 30.56 percentage points)
+
+$\beta_3$ = -0.1300 (respondent's father AND mother both having high school degrees or greater increases probability of respondent having high school degree or greater by $\beta_1$ +$\beta_2$ +$\beta_3$ = 43.62 percentage points)
+
+**Express the relationship between `r_greater_than_hs_degree` ( Y ) and `mother_greater_than_hs_degree` ( X1 ), and `father_greater_than_hs_degree` ( X2) as a logistic regression model. In other words, is the log odds of a respondent having a high school degree or greater different if their father, mother, or both parents have a high school degree or greater?**
+
+```{r}
+logit_crosstab92<-glm(r_greater_than_hs_degree~mother_greater_than_hs_degree+father_greater_than_hs_degree+mother_greater_than_hs_degree*father_greater_than_hs_degree, data=d_92, family="binomial")
+
+logit_crosstab92$coefficients
+```
+
+$\alpha$ = -0.7651
+
+$\beta_1$ = 1.080 (respondent's mother having high school degree or greater increases log odds of respondent having high school degree or greater by 1.080)
+
+$\beta_2$ = 1.268 (respondent's father having high school degree or greater increases log odds of respondent having high school degree or greater by 1.268)
+
+$\beta_3$ = -0.4643 (respondent's father AND mother both having high school degrees or greater increases log odds of respondent having high school degree or greater by $\beta_1$ +$\beta_2$ +$\beta_3$ = 1.884)
+
+## Exercise 9.3
+
+```{r}
+d_93<-gss18 |> 
+  select(born, sex, xmarsex) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  drop_na() |> 
+  mutate(born_in_us = if_else(born==1, 1L, 0L),
+         male = if_else(sex==1, 1L, 0L),
+         disapproves_exmarsex = if_else(xmarsex == 1, 1L, 0L))
+
+crosstab93 <- table(born_in_us = d_93$born_in_us, male = d_93$male, disapproves_of_exmarsex = d_93$disapproves_exmarsex)
+
+as_tibble(crosstab93) |> 
+  mutate(disapproves_of_exmarsex = if_else(disapproves_of_exmarsex == "1", "Always disapproves", "Other")) |> 
+  pivot_wider(names_from = disapproves_of_exmarsex, values_from = n)
+```
+
+**Express the relationship between `disapproves_exmarsex` ( Y ) and `male` ( X1 ), and `born_in_us` ( X2) as a linear probability model. In other words, is a respondent more likely to always disapprove of extramarital sex if they are male, were born in the US, or are male AND were born in the US?**
+
+```{r}
+linear_model_crosstab93<-lm(disapproves_exmarsex ~ male + born_in_us + male*born_in_us, data=d_93)
+
+linear_model_crosstab93$coefficients
+```
+
+$\alpha$ = -0.7924
+
+$\beta_1$ = -0.0887 (respondent being male decreases probability of always disapproving of extramarital sex by 8.87 percentage points)
+
+$\beta_2$ = 0.0049 (respondent being born in the US increases probability of always disapproving of extramarital sex by 0.49 percentage points)
+
+$\beta_3$ = -0.0070 (respondent being male AND being born in the US decreases probability of always disapproving of extramarital sex by $\beta_1$ +$\beta_2$ +$\beta_3$ = 9.08 percentage points)
+
+**Express the relationship between `disapproves_exmarsex` ( Y ) and `male` ( X1 ), and `born_in_us` ( X2) as a logistic regression model. In other words, is the log odds of a respondent always disapproving of extramarital sex different if they are male, were born in the US, or are male AND were born in the US?**
+
+```{r}
+logit_crosstab93<-glm(disapproves_exmarsex ~ male + born_in_us + male*born_in_us, data=d_93, family="binomial")
+
+logit_crosstab93$coefficients
+```
+
+$\alpha$ = 1.340
+
+$\beta_1$ = -0.4748 (respondent being male decreases log odds of always disapproving of extramarital sex by 0.4748)
+
+$\beta_2$ = 0.0300 (respondent being born in the US increases log odds of always disapproving of extramarital sex by 0.0300)
+
+$\beta_3$ = -0.040 (respondent being male AND being born in the US decreases log odds of always disapproving of extramarital sex by $\beta_1$ +$\beta_2$ +$\beta_3$ = 0.4848)

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lev Kolinski">
+
+<title>Exercise_09</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Exercise_09_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Exercise_09_files/libs/quarto-html/quarto.js"></script>
+<script src="Exercise_09_files/libs/quarto-html/popper.min.js"></script>
+<script src="Exercise_09_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Exercise_09_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Exercise_09_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Exercise_09_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Exercise_09_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Exercise_09_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Exercise_09_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Exercise_09</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Lev Kolinski </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.3     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.0
+✔ ggplot2   3.4.3     ✔ tibble    3.2.1
+✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gssr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Package loaded. To attach the GSS data, type data(gss_all) at the console.
+For the codebook, type data(gss_doc).
+For the panel data and documentation, type e.g. data(gss_panel08_long) and data(gss_panel_doc).</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_light</span>(<span class="at">base_family =</span> <span class="st">"Optima"</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>gss18 <span class="ot">&lt;-</span> <span class="fu">gss_get_yr</span>(<span class="dv">2018</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Fetching: https://gss.norc.org/documents/stata/2018_stata.zip</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> gss18 <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(attend, polviews, cappun) <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  haven<span class="sc">::</span><span class="fu">zap_missing</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  haven<span class="sc">::</span><span class="fu">zap_labels</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">weekly =</span> <span class="fu">if_else</span>(attend <span class="sc">&gt;=</span> <span class="dv">7</span>, 1L, 0L),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">conservative =</span> <span class="fu">if_else</span>(polviews <span class="sc">&gt;=</span> <span class="dv">5</span>, 1L, 0L),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cappun =</span> <span class="fu">if_else</span>(cappun <span class="sc">==</span> <span class="dv">1</span>, 1L, 0L)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(cappun, weekly, conservative) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="exercise-9.1" class="level2">
+<h2 class="anchored" data-anchor-id="exercise-9.1">Exercise 9.1</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># constructing cross tab</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>crosstab1 <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">cp =</span> d<span class="sc">$</span>cappun, <span class="at">weekly =</span> d<span class="sc">$</span>weekly)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>crosstab1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   weekly
+cp     0    1
+  0  587  188
+  1 1050  277</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># contingency table with column percentages</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(crosstab1, <span class="at">margin =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   weekly
+cp          0         1
+  0 0.3585828 0.4043011
+  1 0.6414172 0.5956989</code></pre>
+</div>
+</div>
+<p><strong>Express the relationship between <code>cappun</code> ( Y ) and <code>weekly</code> ( X ) as a linear probability model.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>linear_model_1<span class="ot">&lt;-</span><span class="fu">lm</span>(cappun<span class="sc">~</span>weekly, <span class="at">data=</span>d)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>linear_model_1<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)      weekly 
+  0.6414172  -0.0457183 </code></pre>
+</div>
+</div>
+<p>As a linear probability model, <span class="math inline">\(\alpha\)</span> = 0.6414 and <span class="math inline">\(\beta\)</span> = -0.0457</p>
+<p>This means that the probability of a respondent favoring the death penalty is roughly 4.57 percentage points lower if they attend church weekly.</p>
+<p><strong>Express the relationship between <code>cappun</code> ( Y ) and <code>weekly</code> ( X ) as a logistic regression model.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>logit_d1<span class="ot">&lt;-</span><span class="fu">glm</span>(cappun <span class="sc">~</span> weekly, <span class="at">data =</span> d, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>logit_d1<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)      weekly 
+  0.5815206  -0.1939451 </code></pre>
+</div>
+</div>
+<p>As a logistic regression model, <span class="math inline">\(\alpha\)</span> = 0.5815 and <span class="math inline">\(\beta\)</span> = -0.1939</p>
+<p>The negative beta coefficient means that when respondents say they do attend religious services at least weekly, the log-odds of favoring the death penalty (Y) decreases by approximately 0.1939.</p>
+<p><strong>BONUS: Calculate the standard error, 95% CI of</strong> <span class="math inline">\(\beta\)</span> <strong>in the linear model</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(linear_model_1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = cappun ~ weekly, data = d)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.6414 -0.6414  0.3586  0.3586  0.4043 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.64142    0.01192  53.807   &lt;2e-16 ***
+weekly      -0.04572    0.02534  -1.804   0.0714 .  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4823 on 2100 degrees of freedom
+Multiple R-squared:  0.001547,  Adjusted R-squared:  0.001072 
+F-statistic: 3.254 on 1 and 2100 DF,  p-value: 0.0714</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint.lm</span>(linear_model_1, <span class="at">level=</span><span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  2.5 %     97.5 %
+(Intercept)  0.61803972 0.66479474
+weekly      -0.09542193 0.00398533</code></pre>
+</div>
+</div>
+<p>The standard error of <span class="math inline">\(\beta\)</span> is 0.02534. The 95% confidence interval is (-0.095, 0.004)</p>
+</section>
+<section id="exercise-9.1.2" class="level2">
+<h2 class="anchored" data-anchor-id="exercise-9.1.2">Exercise 9.1.2</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>crosstab2 <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">cp =</span> d<span class="sc">$</span>cappun, <span class="at">weekly =</span> d<span class="sc">$</span>weekly, <span class="at">conservative =</span> d<span class="sc">$</span>conservative)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#2x2x2 table</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">as_tibble</span>(crosstab2) <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cp =</span> <span class="fu">if_else</span>(cp <span class="sc">==</span> <span class="st">"1"</span>, <span class="st">"favors"</span>, <span class="st">"opposes"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> cp, <span class="at">values_from =</span> n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  weekly conservative opposes favors
+  &lt;chr&gt;  &lt;chr&gt;          &lt;int&gt;  &lt;int&gt;
+1 0      0                485    682
+2 1      0                115    123
+3 0      1                102    368
+4 1      1                 73    154</code></pre>
+</div>
+</div>
+<p><strong>Express the relationship between <code>cappun</code> ( Y ) and <code>weekly</code> ( X1 ), and <code>conservative</code> ( X2) as a linear probability model.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>linear_model_crosstab2<span class="ot">&lt;-</span><span class="fu">lm</span>(cappun<span class="sc">~</span>weekly<span class="sc">+</span>conservative<span class="sc">+</span>weekly<span class="sc">*</span>conservative, <span class="at">data=</span>d)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>linear_model_crosstab2<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        (Intercept)              weekly        conservative weekly:conservative 
+         0.58440446         -0.06759773          0.19857427         -0.03696689 </code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\alpha\)</span> = 0.5844</p>
+<p><span class="math inline">\(\beta_1\)</span> = -0.0676 (attending religious services at least weekly decreases probability of favoring capital punishment by 6.76 percentage points)</p>
+<p><span class="math inline">\(\beta_2\)</span> = 0.1986 (being conservative increases the probability of favoring capital punishment by 19.86 percentage points)</p>
+<p><span class="math inline">\(\beta_3\)</span> = -0.0370 (attending religious services at least weekly AND being conservative increases probability of favoring capital punishment by <span class="math inline">\(\beta_1\)</span> +<span class="math inline">\(\beta_2\)</span> +<span class="math inline">\(\beta_3\)</span> = 9.4 percentage points)</p>
+<p>Express <strong>the relationship between <code>cappun</code> ( Y ) and <code>weekly</code> ( X1 ), and <code>conservative</code> ( X2) as a logistic regression model.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>logit_crosstab2<span class="ot">&lt;-</span><span class="fu">glm</span>(cappun <span class="sc">~</span> weekly<span class="sc">+</span>conservative<span class="sc">+</span>conservative<span class="sc">*</span>weekly, <span class="at">data =</span> d, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>logit_crosstab2<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        (Intercept)              weekly        conservative weekly:conservative 
+          0.3408808          -0.2736285           0.9422294          -0.2629884 </code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\alpha\)</span> = 0.3409</p>
+<p><span class="math inline">\(\beta_1\)</span> = -0.2736 (attending religious services at least weekly decreases the log odds of favoring capital punishment by 0.2736)</p>
+<p><span class="math inline">\(\beta_2\)</span> = 0.9422 (being conservative increases the log odds of favoring capital punishment by 0.9422)</p>
+<p><span class="math inline">\(\beta_3\)</span> = -0.2630 (attending religious services at least weekly AND being conservative increases the log odds of favoring capital punishment by <span class="math inline">\(\beta_1\)</span> +<span class="math inline">\(\beta_2\)</span> +<span class="math inline">\(\beta_3\)</span> = 1.5)</p>
+<p><strong>BONUS: Calculate standard error of</strong> <span class="math inline">\(\beta_1\)</span> <strong>in the linear probability model and give the 95% CI.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(linear_model_crosstab2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = cappun ~ weekly + conservative + weekly * conservative, 
+    data = d)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.7830 -0.5844  0.2170  0.4156  0.4832 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)          0.58440    0.01389  42.079  &lt; 2e-16 ***
+weekly              -0.06760    0.03374  -2.003   0.0453 *  
+conservative         0.19857    0.02592   7.661 2.79e-14 ***
+weekly:conservative -0.03697    0.05108  -0.724   0.4693    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4744 on 2098 degrees of freedom
+Multiple R-squared:  0.03475,   Adjusted R-squared:  0.03337 
+F-statistic: 25.18 on 3 and 2098 DF,  p-value: 5.308e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint.lm</span>(linear_model_crosstab2, <span class="at">level=</span><span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         2.5 %       97.5 %
+(Intercept)          0.5571681  0.611640858
+weekly              -0.1337736 -0.001421899
+conservative         0.1477437  0.249404858
+weekly:conservative -0.1371410  0.063207207</code></pre>
+</div>
+</div>
+<p>The standard error of <span class="math inline">\(\beta_1\)</span>is 0.03374. The confidence interval is (-0.1338, -0.0014)</p>
+</section>
+<section id="exercise-9.2" class="level2">
+<h2 class="anchored" data-anchor-id="exercise-9.2">Exercise 9.2</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>d_92<span class="ot">&lt;-</span>gss18 <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(degree, madeg, padeg) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  haven<span class="sc">::</span><span class="fu">zap_missing</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  haven<span class="sc">::</span><span class="fu">zap_labels</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">r_greater_than_hs_degree =</span> <span class="fu">if_else</span>(degree <span class="sc">&gt;</span> <span class="dv">1</span>, 1L, 0L),</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">mother_greater_than_hs_degree =</span> <span class="fu">if_else</span>(madeg <span class="sc">&gt;</span><span class="dv">1</span>, 1L, 0L),</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">father_greater_than_hs_degree =</span> <span class="fu">if_else</span>(padeg <span class="sc">&gt;</span><span class="dv">1</span>, 1L, 0L))</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>crosstab92 <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">r_greater_than_hs_degree =</span> d_92<span class="sc">$</span>r_greater_than_hs_degree, <span class="at">mother_greater_than_hs_degree =</span> d_92<span class="sc">$</span>mother_greater_than_hs_degree, <span class="at">father_greater_than_hs_degree =</span> d_92<span class="sc">$</span>father_greater_than_hs_degree)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co">#2x2x2 table</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">as_tibble</span>(crosstab92) <span class="sc">|&gt;</span> </span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">r_greater_than_hs_degree =</span> <span class="fu">if_else</span>(r_greater_than_hs_degree <span class="sc">==</span> <span class="st">"1"</span>, <span class="st">"HS Grad"</span>, <span class="st">"Not HS Grad"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> r_greater_than_hs_degree, <span class="at">values_from =</span> n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  mother_greater_than_hs_degree father_greater_than_hs…¹ `Not HS Grad` `HS Grad`
+  &lt;chr&gt;                         &lt;chr&gt;                            &lt;int&gt;     &lt;int&gt;
+1 0                             0                                  730       340
+2 1                             0                                   70        96
+3 0                             1                                   58        96
+4 1                             1                                   63       193
+# ℹ abbreviated name: ¹​father_greater_than_hs_degree</code></pre>
+</div>
+</div>
+<p><strong>Express the relationship between <code>r_greater_than_hs_degree</code> ( Y ) and <code>mother_greater_than_hs_degree</code> ( X1 ), and <code>father_greater_than_hs_degree</code> ( X2) as a linear probability model. In other words, is a respondent more likely to have a high school degree or greater if their father, mother, or both parents have a high school degree or greater?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>linear_model_crosstab92<span class="ot">&lt;-</span><span class="fu">lm</span>(r_greater_than_hs_degree<span class="sc">~</span>mother_greater_than_hs_degree<span class="sc">+</span>father_greater_than_hs_degree<span class="sc">+</span>mother_greater_than_hs_degree<span class="sc">*</span>father_greater_than_hs_degree, <span class="at">data=</span>d_92)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>linear_model_crosstab92<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                (Intercept) 
+                                                  0.3177570 
+                              mother_greater_than_hs_degree 
+                                                  0.2605562 
+                              father_greater_than_hs_degree 
+                                                  0.3056196 
+mother_greater_than_hs_degree:father_greater_than_hs_degree 
+                                                 -0.1300266 </code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\alpha\)</span> = 0.3178</p>
+<p><span class="math inline">\(\beta_1\)</span> = 0.2606 (respondent’s mother having high school degree or greater increases probability of respondent having high school degree or greater by 26.06 percentage points)</p>
+<p><span class="math inline">\(\beta_2\)</span> = 0.3056 (respondent’s father having high school degree or greater increases probability of respondent having high school degree or greater by 30.56 percentage points)</p>
+<p><span class="math inline">\(\beta_3\)</span> = -0.1300 (respondent’s father AND mother both having high school degrees or greater increases probability of respondent having high school degree or greater by <span class="math inline">\(\beta_1\)</span> +<span class="math inline">\(\beta_2\)</span> +<span class="math inline">\(\beta_3\)</span> = 43.62 percentage points)</p>
+<p><strong>Express the relationship between <code>r_greater_than_hs_degree</code> ( Y ) and <code>mother_greater_than_hs_degree</code> ( X1 ), and <code>father_greater_than_hs_degree</code> ( X2) as a logistic regression model. In other words, is the log odds of a respondent having a high school degree or greater different if their father, mother, or both parents have a high school degree or greater?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>logit_crosstab92<span class="ot">&lt;-</span><span class="fu">glm</span>(r_greater_than_hs_degree<span class="sc">~</span>mother_greater_than_hs_degree<span class="sc">+</span>father_greater_than_hs_degree<span class="sc">+</span>mother_greater_than_hs_degree<span class="sc">*</span>father_greater_than_hs_degree, <span class="at">data=</span>d_92, <span class="at">family=</span><span class="st">"binomial"</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>logit_crosstab92<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                (Intercept) 
+                                                 -0.7640989 
+                              mother_greater_than_hs_degree 
+                                                  1.0799519 
+                              father_greater_than_hs_degree 
+                                                  1.2680041 
+mother_greater_than_hs_degree:father_greater_than_hs_degree 
+                                                 -0.4643016 </code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\alpha\)</span> = -0.7651</p>
+<p><span class="math inline">\(\beta_1\)</span> = 1.080 (respondent’s mother having high school degree or greater increases log odds of respondent having high school degree or greater by 1.080)</p>
+<p><span class="math inline">\(\beta_2\)</span> = 1.268 (respondent’s father having high school degree or greater increases log odds of respondent having high school degree or greater by 1.268)</p>
+<p><span class="math inline">\(\beta_3\)</span> = -0.4643 (respondent’s father AND mother both having high school degrees or greater increases log odds of respondent having high school degree or greater by <span class="math inline">\(\beta_1\)</span> +<span class="math inline">\(\beta_2\)</span> +<span class="math inline">\(\beta_3\)</span> = 1.884)</p>
+</section>
+<section id="exercise-9.3" class="level2">
+<h2 class="anchored" data-anchor-id="exercise-9.3">Exercise 9.3</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>d_93<span class="ot">&lt;-</span>gss18 <span class="sc">|&gt;</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(born, sex, xmarsex) <span class="sc">|&gt;</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  haven<span class="sc">::</span><span class="fu">zap_missing</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  haven<span class="sc">::</span><span class="fu">zap_labels</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">born_in_us =</span> <span class="fu">if_else</span>(born<span class="sc">==</span><span class="dv">1</span>, 1L, 0L),</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">male =</span> <span class="fu">if_else</span>(sex<span class="sc">==</span><span class="dv">1</span>, 1L, 0L),</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">disapproves_exmarsex =</span> <span class="fu">if_else</span>(xmarsex <span class="sc">==</span> <span class="dv">1</span>, 1L, 0L))</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>crosstab93 <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">born_in_us =</span> d_93<span class="sc">$</span>born_in_us, <span class="at">male =</span> d_93<span class="sc">$</span>male, <span class="at">disapproves_of_exmarsex =</span> d_93<span class="sc">$</span>disapproves_exmarsex)</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="fu">as_tibble</span>(crosstab93) <span class="sc">|&gt;</span> </span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">disapproves_of_exmarsex =</span> <span class="fu">if_else</span>(disapproves_of_exmarsex <span class="sc">==</span> <span class="st">"1"</span>, <span class="st">"Always disapproves"</span>, <span class="st">"Other"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> disapproves_of_exmarsex, <span class="at">values_from =</span> n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  born_in_us male  Other `Always disapproves`
+  &lt;chr&gt;      &lt;chr&gt; &lt;int&gt;                &lt;int&gt;
+1 0          0        22                   84
+2 1          0       153                  602
+3 0          1        24                   57
+4 1          1       182                  428</code></pre>
+</div>
+</div>
+<p><strong>Express the relationship between <code>disapproves_exmarsex</code> ( Y ) and <code>male</code> ( X1 ), and <code>born_in_us</code> ( X2) as a linear probability model. In other words, is a respondent more likely to always disapprove of extramarital sex if they are male, were born in the US, or are male AND were born in the US?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>linear_model_crosstab93<span class="ot">&lt;-</span><span class="fu">lm</span>(disapproves_exmarsex <span class="sc">~</span> male <span class="sc">+</span> born_in_us <span class="sc">+</span> male<span class="sc">*</span>born_in_us, <span class="at">data=</span>d_93)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>linear_model_crosstab93<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    (Intercept)            male      born_in_us male:born_in_us 
+    0.792452830    -0.088749126     0.004898163    -0.006962523 </code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\alpha\)</span> = -0.7924</p>
+<p><span class="math inline">\(\beta_1\)</span> = -0.0887 (respondent being male decreases probability of always disapproving of extramarital sex by 8.87 percentage points)</p>
+<p><span class="math inline">\(\beta_2\)</span> = 0.0049 (respondent being born in the US increases probability of always disapproving of extramarital sex by 0.49 percentage points)</p>
+<p><span class="math inline">\(\beta_3\)</span> = -0.0070 (respondent being male AND being born in the US decreases probability of always disapproving of extramarital sex by <span class="math inline">\(\beta_1\)</span> +<span class="math inline">\(\beta_2\)</span> +<span class="math inline">\(\beta_3\)</span> = 9.08 percentage points)</p>
+<p><strong>Express the relationship between <code>disapproves_exmarsex</code> ( Y ) and <code>male</code> ( X1 ), and <code>born_in_us</code> ( X2) as a logistic regression model. In other words, is the log odds of a respondent always disapproving of extramarital sex different if they are male, were born in the US, or are male AND were born in the US?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>logit_crosstab93<span class="ot">&lt;-</span><span class="fu">glm</span>(disapproves_exmarsex <span class="sc">~</span> male <span class="sc">+</span> born_in_us <span class="sc">+</span> male<span class="sc">*</span>born_in_us, <span class="at">data=</span>d_93, <span class="at">family=</span><span class="st">"binomial"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>logit_crosstab93<span class="sc">$</span>coefficients</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    (Intercept)            male      born_in_us male:born_in_us 
+     1.33977435     -0.47477691      0.03004518     -0.03992611 </code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\alpha\)</span> = 1.340</p>
+<p><span class="math inline">\(\beta_1\)</span> = -0.4748 (respondent being male decreases log odds of always disapproving of extramarital sex by 0.4748)</p>
+<p><span class="math inline">\(\beta_2\)</span> = 0.0300 (respondent being born in the US increases log odds of always disapproving of extramarital sex by 0.0300)</p>
+<p><span class="math inline">\(\beta_3\)</span> = -0.040 (respondent being male AND being born in the US decreases log odds of always disapproving of extramarital sex by <span class="math inline">\(\beta_1\)</span> +<span class="math inline">\(\beta_2\)</span> +<span class="math inline">\(\beta_3\)</span> = 0.4848)</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
