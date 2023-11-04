@@ -1,0 +1,332 @@
+---
+title: "Exercise_10"
+author: "Lev Kolinski"
+format: html
+editor: visual
+---
+
+```{r include=FALSE}
+library(tidyverse)
+theme_set(theme_light(base_family = "Optima"))
+
+library(modelsummary)
+library(broom)
+library(gt)
+
+library(gssr)
+gss18 <- gss_get_yr(2018) 
+
+d <- gss18 |> 
+  select(attend, polviews, cappun, degree) |> 
+  haven::zap_missing() |> 
+  mutate(across(!degree, haven::zap_labels)) |> 
+  mutate(degree = haven::as_factor(degree)) |> 
+  mutate(
+    weekly = if_else(attend >= 7, 1L, 0L),
+    polviews = polviews - 4,
+    cappun = if_else(cappun == 1, 1L, 0L),
+    ) |> 
+  mutate(conservative = as.integer(polviews > 0)) |> 
+  drop_na() 
+```
+
+# 10.3.1 Exercise
+
+-   `cappun ~ polviews + weekly + polviews:weekly`
+
+```{r}
+mod1<-model.matrix(cappun ~ polviews + weekly + polviews:weekly, data=d)
+head(mod1)
+dim(mod1)
+```
+
+This `cappun ~ polviews + weekly + polviews:weekly`model yields a 2102 x 4 matrix with an intercept column, a polviews column, a weekly column, and a polviews:weekly column.
+
+-   `cappun ~ polviews * weekly`
+
+```{r}
+mod2<-model.matrix(cappun ~ polviews * weekly, data=d)
+head(mod2)
+dim(mod2)
+```
+
+This `cappun ~ polviews * weekly` model yields a 2102 x 4 matrix with an intercept column, polviews column, a weekly column, and a polviews:weekly column.
+
+-   `cappun ~ degree`
+
+```{r}
+mod3<-model.matrix(cappun ~ degree, data=d)
+head(mod3)
+dim(mod3)
+```
+
+This `cappun ~ degree` model yields a 2102 x 5 matrix with an intercept column, and then columns for each factor of the degree variable: degreehigh school, degreeassociate/junior college, degreebachelor's , and degreegraduate.
+
+# 10.3.2 Exercise
+
+```{r}
+mod1 <- glm(cappun ~ conservative + weekly, data = d, family = "binomial")
+mod2 <- glm(cappun ~ conservative * weekly, data = d, family = "binomial")
+mod3 <- glm(cappun ~ polviews + weekly, data = d, family = "binomial")
+mod4 <- glm(cappun ~ polviews * weekly, data = d, family = "binomial")
+```
+
+## Comparing models with AIC and BIC
+
+```{r}
+# Calculate AIC and BIC for each model
+models <- list(mod1, mod2, mod3, mod4)
+model_names <- c("mod1", "mod2", "mod3", "mod4")
+
+aic_values <- numeric(length(models))
+bic_values <- numeric(length(models))
+for (i in 1:4) {
+  aic_values[i] <- AIC(models[[i]])
+  bic_values[i] <- BIC(models[[i]])
+}
+
+# Create a data frame for the table
+comparison_table <- data.frame(Model = model_names, AIC = aic_values, BIC = bic_values)
+comparison_table
+```
+
+### AIC
+
+Of all 4 models, the AIC of `mod4` is the lowest at 2609.423, indicating that it fits the data the best. However, it is very similar to the AIC of `mod3` (2610.704). Thus, it is unlikely that the interaction term between `polviews` and `weekly` significantly impacts the out-of-sample deviance.
+
+The AICs of `mod3` and `mod4` are both lower than the AICs of `mod1` (2698.224) and `mod2` (2698.924), which indicates that the inclusion of the `polviews` predictor variable is more important to fitting the data and minimizing out-of-sample deviance than the `conservative` variable. This is true whether we include an effect term between `conservative` and `weekly` or not.
+
+### BIC
+
+BIC is similar to AIC, but the AIC statistic tends to penalize complex models less (according to this [source](https://machinelearningmastery.com/probabilistic-model-selection-measures/#:~:text=Compared%20to%20the%20BIC%20method,to%20pick%20more%20complex%20models.)). The BIC of `mod3` is the lowest at 2627.656, indicating that it fits the data the best. However, it is very similar to the BIC of `mod4`, so it is unlikely that the interaction term between `polviews` and `weekly` significantly impacts the model fit.
+
+The BICs of `mod3` and `mod4` are both lower than the AICs of `mod1` (2715.176) and `mod2` (2721.526), which indicates that the inclusion of the `polviews` predictor variable is more important to fitting the data than the `conservative` variable. This is true whether we include an effect term between `conservative` and `weekly` or not.
+
+## Interpreting Intercepts
+
+```{r}
+msummary(list(mod1, mod2, mod3, mod4), gof_map = "none", output = "gt") |> 
+  opt_table_font(font = "Optima")
+```
+
+The intercept of all models represents the log-odds of the dependent variable `cappun` being 1 (i.e. respondent favors capital punishment) when all predictor variables are 0. In other words, the intercept is the baseline log-odds of favoring capital punishment when the predictors are at their reference levels. Looking at the models individually:
+
+-   In `mod1`, the intercept value, 0.358, is the log-odds of `cappun` being 1 when the respondent is NOT conservative and does NOT attend religious services weekly.
+
+-   In `mod2`, there is an interaction term that allows the model to capture the combined effect of `conservative` and `weekly` on the response variable, `cappun`. The intercept value, 0.341, is the log-odds of `cappun` being 1 when the respondent is NOT conservative, does NOT attend religious services weekly, and the interaction of `conservative` and `weekly` is zero.
+
+-   In `mod3`, the intercept value, 0.666, is the log-odds of `cappun` being 1 when the respondent is moderate (`polviews`=0) and does NOT attend religious services weekly.
+
+-   In `mod4`, there is an interaction term that allows the model to capture the combined effect of `polviews` and `weekly` on the response variable, `cappun`. The intercept value, 0.677, is the log-odds of `cappun` being 1 when the respondent is moderate (`polviews` =0), does NOT attend religious services weekly, and the interaction of `polviews` and `weekly` is zero.
+
+## Looking at mod4...
+
+...what is the predicted probability that a "slightly conservative" individual that attends religious ceremonies weekly favors capital punishment?
+
+```{r}
+polviews <- 1 #slightly conservative = 1
+weekly <- 1 # attends services weekly =1
+ 
+log_odds <- coef(mod4)["(Intercept)"] + 
+  coef(mod4)["polviews"]*polviews + 
+  coef(mod4)["weekly"]*weekly + 
+  coef(mod4)["polviews:weekly"]*polviews*weekly
+
+# exponentiate, ratio to get probability
+predicted_probability <- 1 / (1 + exp(-log_odds))
+predicted_probability
+```
+
+The predicted probability that a slightly conservative individual that attends religious ceremonies weekly favors capital punishment is **0.629, or 62.9%.**
+
+# 10.3.3 Exercise
+
+## Transforming `polviews`
+
+```{r}
+d2 <- d |> 
+  mutate(polviews2 = factor(case_when(
+    polviews < 0 ~ "liberal",
+    polviews == 0 ~ "moderate",
+    polviews > 0 ~ "conservative"
+  )))
+head(d2)
+```
+
+## Fitting the model to different reference categories
+
+Setting "liberal" as reference category
+
+```{r}
+d2_liberal_as_reference <- d2 |> 
+  mutate(polviews2 = relevel(polviews2, ref = "liberal"))
+
+mod1<-glm(cappun ~ polviews2 + weekly, data=d2_liberal_as_reference)
+```
+
+Setting "moderate" as reference category
+
+```{r}
+d2_moderate_as_reference <- d2 |> 
+  mutate(polviews2 = relevel(polviews2, ref = "moderate"))
+
+mod2<-glm(cappun ~ polviews2 + weekly, data=d2_moderate_as_reference)
+```
+
+Setting "conservative" as reference category
+
+```{r}
+d2_conservative_as_reference <- d2 |> 
+  mutate(polviews2 = relevel(polviews2, ref = "conservative"))
+
+mod3<-glm(cappun ~ polviews2 + weekly, data=d2_conservative_as_reference)
+```
+
+## Comparing the model with different reference categories
+
+```{r}
+msummary(list(mod1, mod2, mod3), gof_map = "none", output = "gt") |> 
+  opt_table_font(font = "Optima") ## this function comes from the gt package
+
+AIC(mod1)
+AIC(mod2)
+AIC(mod3)
+```
+
+The model fits the data with an AIC of 2764.853, regardless of the reference category.
+
+### Interpreting coefficients
+
+With "liberal" as the reference category (`mod1`):
+
+-   $\alpha$ = 0.467
+
+    -   The intercept value, 0.467, is the log-odds of `cappun` being 1 when the respondent is liberal and does NOT attend religious services weekly.
+
+-   $\beta_1$ = 0.311
+
+    -   Being conservative increases the log-odds of favoring the death penalty by 0.311
+
+-   $\beta_2$ = 0.215
+
+    -   Being moderate increases the log-odds of favoring the death penalty by 0.215
+
+-   $\beta_3$ = -0.091
+
+    -   Attending religious services weekly decreases the log-odds of favoring the death penalty by 0.091
+
+With "moderate" as the reference category (`mod2`):
+
+-   $\alpha$ = 0.682
+
+    -   The intercept value, 0.682, is the log-odds of `cappun` being 1 when the respondent is moderate and does NOT attend religious services weekly.
+
+-   $\beta_1$ = 0.096
+
+    -   Being conservative increases the log-odds of favoring the death penalty by 0.096
+
+-   $\beta_2$ = -0.215
+
+    -   Being liberal decreases the log-odds of favoring the death penalty by 0.215
+
+-   $\beta_3$ = -0.091
+
+    -   Attending religious services weekly decreases the log-odds of favoring the death penalty by 0.091
+
+With "conservative" as the reference category (`mod3`):
+
+-   $\alpha$ = 0.778
+
+    -   The intercept value, 0.778, is the log-odds of `cappun` being 1 when the respondent is conservative and does NOT attend religious services weekly.
+
+-   $\beta_1$ = -0.096
+
+    -   Being moderate decreaeses the log-odds of favoring the death penalty by 0.096
+
+-   $\beta_2$ = -0.311
+
+    -   Being liberal decreases the log-odds of favoring the death penalty by 0.311
+
+-   $\beta_3$ = -0.091
+
+    -   Attending religious services weekly decreases the log-odds of favoring the death penalty by 0.091
+
+# 10.3.4 Exercise
+
+::: callout-note
+Fill in the conditional probabilities in the following table:
+
+Probability that a respondent favors capital punishment ( $\texttt{cappun} = 1$ )
+
+| `weekly` | `polviews2`  | Saturated Model | Restricted Model |
+|----------|--------------|-----------------|------------------|
+| 0        | liberal      | **0.460**       | **0.469**        |
+| 0        | moderate     | **0.685**       | **0.683**        |
+| 0        | conservative | **0.783**       | **0.775**        |
+| 1        | liberal      | **0.419**       | **0.368**        |
+| 1        | moderate     | **0.579**       | **0.587**        |
+| 1        | conservative | **0.678**       | **0.694**        |
+:::
+
+Check out my work below:
+
+```{r}
+saturated_model <- glm(cappun ~ weekly * polviews2, data = d2, family = "binomial")
+restricted_model <- glm(cappun ~ weekly + polviews2, data = d2, family = "binomial")
+
+# Create a df with all combinations of weekly and polviews2
+new_data <- expand.grid(weekly = c(0, 1), polviews2 = c("liberal", "moderate", "conservative"))
+
+# Predict probabilities for the saturated model
+predicted_probs_saturated <- predict(saturated_model, newdata = new_data, type = "response")
+
+# Predict probabilities for the restricted model
+predicted_probs_restricted <- predict(restricted_model, newdata = new_data, type = "response")
+
+# Fill in the table with predicted probabilities
+conditional_probabilities <- tibble(
+  weekly = new_data$weekly,
+  polviews2 = new_data$polviews2,
+  Saturated_Model = predicted_probs_saturated,
+  Restricted_Model = predicted_probs_restricted
+)
+
+conditional_probabilities
+```
+
+# 10.3.5 Exercise
+
+Outcome variable:
+
+-   `suicide3`: Does respondent think that a person has a right to end their own life if they have dishonored his or her family?
+
+Predictor variables:
+
+-   `sex`: Is the respondent male or female?
+
+-   `madeg`: Respondents mother's level of education
+
+```{r}
+d3 <-gss18 |> 
+  select(suicide3,sex,madeg) |> 
+  haven::zap_missing() |> 
+  mutate(across(!madeg, haven::zap_labels)) |> 
+  mutate(madeg = haven::as_factor(madeg)) |> 
+  mutate(
+    approves_suicide = if_else(suicide3 == 1, 1L, 0L),
+    male = if_else(sex == 1, 1L,0L),
+  ) |> 
+  drop_na()
+
+mod1<-glm(approves_suicide ~ male, data=d3, family="binomial")
+AIC(mod1)
+BIC(mod1)
+
+mod2<-glm(approves_suicide ~ madeg, data=d3, family="binomial")
+AIC(mod2)
+BIC(mod1)
+
+mod3<-glm(approves_suicide ~ male*madeg, data=d3, family="binomial")
+AIC(mod3)
+BIC(mod1)
+```
