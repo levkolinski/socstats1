@@ -6,7 +6,7 @@ editor: visual
 ---
 
 ```{r include=FALSE}
-library(tidyverse)
+library(tidyverse, warn.conflicts=FALSE)
 theme_set(theme_light(base_family = "Optima"))
 
 library(modelsummary)
@@ -279,15 +279,33 @@ conditional_probabilities
 
 # 10.3.5 Exercise
 
+## Choosing variables
+
 Outcome variable:
 
 -   `suicide3`: Does respondent think that a person has a right to end their own life if they have dishonored his or her family?
+    -   1 = yes
+    -   2 = no
 
 Predictor variables:
 
 -   `sex`: Is the respondent male or female?
 
--   `madeg`: Respondents mother's level of education
+    -   1 = male
+
+    -   2 = female
+
+-   `madeg`: Respondents mother's level of education ("Less than high school" = reference category)
+
+    -   0 = Less than high school
+
+    -   1 = High School
+
+    -   2 = Associate/Junior College
+
+    -   3 = Bachelor
+
+    -   4 = Graduate
 
 ```{r}
 d3 <-gss18 |> 
@@ -302,14 +320,132 @@ d3 <-gss18 |>
   drop_na()
 
 mod1<-glm(approves_suicide ~ male, data=d3, family="binomial")
-AIC(mod1)
-BIC(mod1)
 
 mod2<-glm(approves_suicide ~ madeg, data=d3, family="binomial")
-AIC(mod2)
-BIC(mod1)
 
 mod3<-glm(approves_suicide ~ male*madeg, data=d3, family="binomial")
-AIC(mod3)
-BIC(mod1)
+```
+
+## Comparing models
+
+```{r}
+msummary(list(mod1, mod2, mod3), output = "gt") |> 
+  opt_table_font(font = "Optima")
+```
+
+Based on AIC, `mod3` has the best out-of sample preditive accuracy because $AIC_3$\<$AIC_1$\<$AIC_2$. This is likely because the combined predictive powers of `sex`, `madeg`, and the interaction between `sex` and `madeg` on `suicide3` is greater than the predictive power of `sex` or `madeg` alone.
+
+Based on BIC, `mod1` has the lowest penalty terms (and thus is the best model) because $BIC_1$\<$BIC_2$\<$BIC_3$. BIC penalizes the number of parameters more strongly than AIC, which may explain why the most complex model (`mod3`) has the highest BIC but the lowest AIC. According to BIC, `sex` alone is the best predictor of `suicide3`.
+
+## Relationship between outcome and predictors
+
+-   `mod1` : `approves_suicide` \~ `male`
+
+    -   $\alpha$ = -1.999
+
+        -   The intercept value, -1.999, is the log-odds of `approves_suicide` being 1 when the respondent is NOT male.
+
+    -   $\beta_1$ = 0.246
+
+        -   Being male increases the log-odds of favoring the death penalty by 0.246
+
+-   `mod2` : `approves_suicide` \~ `madeg`
+
+    -   $\alpha$ = -2.533
+
+        -   The intercept value, -2.533, is the log-odds of `approves_suicide` being 1 when the the respondent's mother has less than a high school degree
+
+    -   $\beta_1$ = 0.771
+
+        -   Respondent's mother having a high school degree increases the log-odds of favoring the death penalty by 0.771
+
+    -   $\beta_2$ = 0.780
+
+        -   Respondent's mother having an associate/junior college degree increases the log-odds of favoring the death penalty by 0.780
+
+    -   $\beta_3$ = 1.073
+
+        -   Respondent's mother having a bachelors degree increases the log-odds of favoring the death penalty by 1.073
+
+    -   $\beta_4$ = 0.803
+
+        -   Respondent's mother having a graduate degree increases the log-odds of favoring the death penalty by 0.803
+
+-   `mod3` : `approves_suicide` \~ `male`\*`madeg`
+
+    -   $\alpha$ = -2.508
+
+        -   The intercept value, -2.508, is the log-odds of `approves_suicide` being 1 when the respondent's mother has less than a high school degree, the respondent is NOT male, and the interaction term between `male` and `madeg` equals 0.
+
+    -   $\beta_1$ = -0.064
+
+        -   Being male decreases the log-odds of favoring the death penalty by 0.064
+
+    -   $\beta_2$ = 0.625
+
+        -   Respondent's mother having a high school degree increases the log-odds of favoring the death penalty by 0.625
+
+    -   $\beta_3$ = 0.695
+
+        -   Respondent's mother having an associate/junior college degree increases the log-odds of favoring the death penalty by 0.695
+
+    -   $\beta_3$ = 0.846
+
+        -   Respondent's mother having a bachelors degree increases the log-odds of favoring the death penalty by 0.846
+
+    -   $\beta_4$ = 0.716
+
+        -   Respondent's mother having a graduate degree increases the log-odds of favoring the death penalty by 0.716
+
+    -   $\beta_5$ = 0.315
+
+        -   The interaction between the respondent being male AND the respondent's mother having a high school degree increases the log-odds of favoring the death penalty by 0.315
+
+    -   $\beta_6$ = 0.228
+
+        -   The interaction between the respondent being male AND the respondent's mother having an associate/junior college degree increases the log-odds of favoring the death penalty by 0.228
+
+    -   $\beta_7$ = 0.473
+
+        -   The interaction between the respondent being male AND the respondent's mother having a bachelors degree increases the log-odds of favoring the death penalty by 0.473
+
+    -   $\beta_8$ = 0.182
+
+        -   The interaction between the respondent being male AND the respondent's mother having a graduate degree increases the log-odds of favoring the death penalty by 0.182
+
+# 10.3.6 Extra
+
+```{r}
+mod<-model.matrix(cappun ~ polviews + weekly + polviews:weekly, data=d)
+
+
+boot_coef <- replicate(n = 2e3, simplify = FALSE, expr = {
+  i <- sample(1:nrow(d), replace = TRUE)
+  m <- glm(cappun ~ conservative + weekly, family = "binomial", data = d[i, ])
+  coefficients(m)
+}) |> bind_rows()
+
+# glimpse(boot_coef)
+
+boot_coef |> 
+  pivot_longer(everything(), names_to = "term", values_to = "stat") |> 
+  group_by(term) |> 
+  summarize(estimate = mean(stat), std.error = sd(stat))
+
+broom::tidy(mod)
+
+
+# with infer package instead
+library(infer)
+boot <- d |> 
+  specify(cappun ~ weekly + conservative) |> 
+  generate(reps = 5000, type = "bootstrap") |> 
+  fit(family = "binomial")
+
+boot |> 
+  group_by(term) |> 
+  summarize(mean = mean(estimate), std.error = sd(estimate))
+
+boot |> 
+  visualize(bins = 30)
 ```
