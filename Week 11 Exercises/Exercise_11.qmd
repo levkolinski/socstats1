@@ -1,0 +1,195 @@
+---
+title: "Exercise_11"
+author: "Lev Kolinski"
+format: html
+editor: visual
+---
+
+## Loading data
+
+```{r}
+library(tidyverse,warn.conflicts=FALSE)
+theme_set(theme_light(base_family = "Optima"))
+library(lmtest)
+library(modelsummary)
+library(broom)
+library(gt)
+library(performance)
+
+library(gssr)
+gss18 <- gss_get_yr(2018) 
+
+vars <- c(
+  "hompop", "sibs", "numwomen", "nummen", "age", "sex", "race", "attend", "polviews", "degree", 
+  "happy", "sexornt", "premarsx", "condom", "wrkslf", "fefam", "cappun", "padeg", "madeg"
+)
+
+d <- gss18 |> 
+  select(all_of(vars)) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  # ## continuous vars 
+  # mutate(across(all_of(vars[1:5]), haven::zap_labels)) |> 
+  # ## categorical vars
+  # mutate(across(!vars[1:5], haven::as_factor)) |>
+  mutate(numtot = numwomen + nummen)
+```
+
+# 11.1.1 Exercise
+
+**Create a logistic regression model predicting some binary variable. Use the `performance_hosmer()` function from the `performance` package to asses how well the model is fitting.**
+
+Outcome: does respondent have HS degree?
+Predictors: Does mom have HS degree? Does dad have HS degree? How many siblings does R have? What is R's political view?
+
+```{r}
+data_11_1_1<- d |> 
+  mutate(
+    hs_degree = if_else(degree >= 2, T, F), 
+    dad_hs_degree = if_else(padeg >=2,T,F), # does dad have hs degree?
+    mom_hs_degree = if_else(madeg >=2, T, F), # does mom have hs degree?
+    sibs = as.numeric(sibs), # number of siblings
+    polviews = as.factor(polviews) # respondent's political views
+  ) |> 
+  select(hs_degree,dad_hs_degree,mom_hs_degree,sibs,polviews) |> 
+  drop_na()
+  
+log_reg_11_1_1<-glm(hs_degree ~ dad_hs_degree + mom_hs_degree + sibs + polviews, family = "binomial", data = data_11_1_1)
+
+summary(log_reg_11_1_1)
+
+performance_hosmer(log_reg_11_1_1)
+```
+
+**Why are larger p-values an indication of good fit here?**
+
+The Hosmer-Lemeshow test is a statistical test used for logistic regressions to assess how well the predicted probabilities from a model match the observed outcomes. The test divides the predicted probabilities into several groups and compares the observed frequencies with the expected frequencies in each group.
+
+A large $X^2$ value with a small p-value shows that there is a significant difference between the observed value and predicted value, indicating a poor fit of the model. A low $X^2$ value with a large p-value shows that the predicted value and observed value is very close, therefore the model is a good fit.
+
+# 11.1.2 Exercise
+
+**Do a \"link test\" on the same model. What is the** $\beta$ **coefficient? What does it mean in terms of goodness of fit?**
+
+```{r}
+data_11_1_1$predict_log_odds_hs_degree<-predict(log_reg_11_1_1)
+
+log_reg_11_1_1_link <- glm(hs_degree ~ predict_log_odds_hs_degree, 
+                           data = data_11_1_1, 
+                           family = binomial(link = "logit"))
+
+tidy(log_reg_11_1_1_link)
+```
+
+The $\beta$ value of 1.0 implies that for a one-unit increase in `predict_log_odds_hs_degree`, the log-odds of `hs_degree` being true increases by 1 (i.e. the probability of the respondent having a high school degree increases by $e^\beta=$ 2.718). In practice, this means that the model is a good fit.
+
+# 11.2.1 Exercise
+
+Use the `rpois()` function to generate 1000 draws from the Poisson distribution for different values of $\lambda$ (e.g., 1, 2, 3, 4, 5). Plot the results using ggplot.
+
+```{r}
+lambda_values <- c(1, 2, 3, 4, 5)
+draws <- lapply(lambda_values, function(lambda) rpois(1000, lambda))
+
+data <- data.frame(value = unlist(draws),
+                   lambda = rep(lambda_values, each = 1000))
+
+ggplot(data, aes(x = value, fill = as.factor(lambda))) +
+  geom_bar(position = "identity", alpha = 0.7, color = "black") +
+  facet_wrap(~lambda, scales = "free") +
+  coord_cartesian(xlim = c(0, 14), ylim = c(0,400))+
+  labs(title = "Poisson Distribution with Different Lambda Values",
+       x = "Values",
+       y = "Frequency") +
+  theme_minimal()
+```
+
+# 11.2.2 Exercise
+
+**Create at least three models that predict `numtot` (the sum of male and female sexual partners) from a subset of predictors. Keep it simple.**
+
+```{r}
+df_11_2_2 <- d |> 
+  mutate(
+    age = as.numeric(age),
+    male = ifelse(sex == 1, 1L, 0L),
+    weekly = if_else(attend >= 7, 1L, 0L),
+    conservative = if_else(polviews >= 5, 1L, 0L),
+    sex_orientation = as.factor(case_when(
+      sexornt == 1 ~ "gay",
+      sexornt == 2 ~ "bi",
+      sexornt == 3 ~ "straight"
+    )),
+    sex_orientation = relevel(sex_orientation, ref = "straight")
+  ) |> 
+  select(numtot, age, male, weekly, conservative, sex_orientation) |> 
+  drop_na()
+
+numtot_m1 <- glm(numtot ~ age + male, 
+                    data = df_11_2_2, 
+                    family = "poisson")
+   
+numtot_m2 <- glm(numtot ~ sex_orientation, 
+                    data = df_11_2_2, 
+                    family = "poisson")
+  
+numtot_m3 <- glm(numtot ~ age + male + weekly + conservative + sex_orientation,
+                    data = df_11_2_2, 
+                    family = "poisson")
+
+msummary(list(numtot_m1, numtot_m2, numtot_m3), output = "gt") |> 
+  opt_table_font(font = "Optima")
+```
+
+**Choose the one that fits the data best using AIC and BIC.**
+
+`numtot_m3` fits the data the best based on both its AIC and BIC scores, which are lower than the AIC and BIC scores for `numtot_m1` and `numtot_m2` . `numtot_m3` is the most complicated model, with the most number of predictors included.
+
+**Interpret at least one of the coefficients in the model that's not the intercept.**
+
+In `numtot_m1`, the `male` predictor variable = 1 if the respondent is male and = 0 if the respondent is not male. The $\beta$ of 0.247 means that male respondents are predicted to have $e^\beta$ = 1.280179 more sexual partners than non-male respondents.
+
+# 11.2.3 Exercise
+
+**Create at least three models that predict `sibs` (the respondent's number of siblings) from a subset of predictors. Keep it simple.**
+
+```{r}
+df_11_2_3 <- d |> 
+  mutate(
+    age = as.numeric(age),
+    male = ifelse(sex == 1, 1L, 0L),
+    weekly = if_else(attend >= 7, 1L, 0L),
+    conservative = if_else(polviews >= 5, 1L, 0L),
+    sex_orientation = as.factor(case_when(
+      sexornt == 1 ~ "gay",
+      sexornt == 2 ~ "bi",
+      sexornt == 3 ~ "straight"
+    )),
+    sex_orientation = relevel(sex_orientation, ref = "straight")
+  ) |> 
+  select(sibs, numtot, age, male, weekly, conservative, sex_orientation) |> 
+  drop_na()
+
+sibs_m1 <- glm(sibs ~ age + conservative, 
+                    data = df_11_2_3, 
+                    family = "poisson")
+   
+sibs_m2 <- glm(sibs ~ male + weekly, 
+                    data = df_11_2_3, 
+                    family = "poisson")
+  
+sibs_m3 <- glm(sibs ~ age + male + weekly + conservative + sex_orientation + numtot,
+                    data = df_11_2_3, 
+                    family = "poisson")
+
+msummary(list(sibs_m1, sibs_m2, sibs_m3), output = "gt") |> 
+  opt_table_font(font = "Optima")
+```
+
+**Choose the one that fits the data best using AIC and BIC.**
+
+Based on AIC, `sibs_m3` fits the data the best (i.e. its AIC is the lowest). Based on BIC, though, `sibs_m2` fits the data the best (i.e. its BIC is the lowest). BIC tends to penalize complex models more than AIC, so this makes sense because `sibs_m3` contains the most predictor variables.
+
+**Interpret at least one of the coefficients in the model that's not the intercept.**
+
+In `sibs_m1` and `sibs_m3`, the $\beta$ for the age variable (0.004) indicates that for every 1-step increase in the respondent's age, the number of siblings the respondent will report increases by $e^\beta$ = 1.004008.
