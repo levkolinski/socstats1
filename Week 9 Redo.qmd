@@ -1,0 +1,121 @@
+---
+title: "Week 9 Redo"
+format: html
+editor: visual
+---
+
+## Setup
+
+```{r}
+library(tidyverse)
+library(gssr)
+library(boot)
+theme_set(theme_light(base_family = "Optima"))
+
+gss18 <- gss_get_yr(2018) 
+
+d <- gss18 |> 
+  select(attend, polviews, cappun) |> 
+  haven::zap_missing() |> 
+  haven::zap_labels() |> 
+  mutate(
+    weekly = if_else(attend >= 7, 1L, 0L),
+    conservative = if_else(polviews >= 5, 1L, 0L),
+    cappun = if_else(cappun == 1, 1L, 0L)
+    ) |> 
+  drop_na() |> 
+  select(cappun, weekly, conservative) 
+```
+
+## 9.1.1 Exercise
+
+**The following contingency table shows the association between 2 variables: cappun and weekly.**
+
+**Express the relationship between cappun (Y) and weekly (X) as a linear probability model.**
+
+```{r}
+crosstab1 <- table(cp = d$cappun, weekly = d$weekly)
+crosstab1
+ 
+# to view row percentages, set margin = 1 (good if interested in weekly as y, cappun as x)
+prop.table(crosstab1, margin = 1)
+
+# to view column percentages, set margin = 2 (good if interested in cappun as y, weekly as x)
+prop.table(crosstab1, margin = 2)
+
+# to get alpha, what is the probability of cappun = 1 if weekly = 0
+alpha <- prop.table(crosstab1, margin = 2)[2,1] # second row, first column
+
+# to get beta, subtract alpha from the probability of cappun = 1 if weekly = 1
+beta <- prop.table(crosstab1, margin = 2)[2,2] - alpha
+
+# confirm answer using lm()
+lm(d$cappun ~ d$weekly)
+```
+
+**Express the relationship between cappun (Y) and weekly (X) as a logistic regression model**
+
+```{r}
+prop.table(crosstab1, margin = 2)
+
+# logistic regression, so we want log-odds
+
+alpha_logit <- log(prop.table(crosstab1, margin = 2)[2,1]/(1-prop.table(crosstab1, margin = 2)[2,1]))
+
+beta_logit <- log(prop.table(crosstab1, margin = 2)[2,2]/(1-prop.table(crosstab1, margin = 2)[2,2]))-alpha_logit
+
+# confirm answer using glm()
+glm(d$cappun ~ d$weekly, family = "binomial")
+```
+
+## 9.1.2 Exercise
+
+**The following table adds a third variable to the previous contingency table: conservative.**
+
+```{r}
+crosstab2 <- table(cp = d$cappun, weekly = d$weekly, conservative = d$conservative)
+crosstab2
+
+## column percentages
+prop.table(crosstab2, margin = c(2, 3))
+
+```
+
+**Express the relationship between `cappun` (** Y **), `weekly` (** X1 **), and `conservative` (** X2 **) as a linear probability model.**
+
+```{r}
+# changing 2x2x2 table to be wider
+as_tibble(crosstab2) |> 
+  mutate(cp = if_else(cp == "1", "favors", "opposes")) |> 
+  pivot_wider(names_from = cp, values_from = n)
+
+# to get alpha, what is the probability of cappun = 1 if weekly = 0 and conservative = 0?
+alpha <- prop.table(crosstab2, margin = c(2, 3))[2,1,1]
+
+# to get beta1, subtract alpha from the probability of cappun = 1 if weekly = 1 and conservative = 0
+beta_1<- prop.table(crosstab2, margin = c(2, 3))[2,2,1] - alpha
+
+# to get beta2, subtract alpha from the probability of cappun = 1 if weekly = 0 and conservative = 1
+beta_2<- prop.table(crosstab2, margin = c(2, 3))[2,1,2] - alpha
+
+# to get beta3, subtract alpha, beta1, and beta2, from the probability of cappun = 1 if weekly = 1 and conservative = 1
+beta_3 <- prop.table(crosstab2, margin = c(2, 3))[2,2,2] - beta_1- beta_2-alpha
+
+# checking answers
+lm(d$cappun ~ d$weekly + d$conservative + d$weekly*d$conservative)
+```
+
+**Express the relationship between `cappun` (** Y **), `weekly` (** X1 **), and `conservative` (** X2 **) as a logistic regression model.**
+
+```{r}
+alpha_logit <- log(prop.table(crosstab2, margin = c(2, 3))[2,1,1]/(1-prop.table(crosstab2, margin = c(2, 3))[2,1,1]))
+
+beta1_logit <- log(prop.table(crosstab2, margin = c(2, 3))[2,2,1]/(1-prop.table(crosstab2, margin = c(2, 3))[2,2,1]))-alpha_logit
+
+beta2_logit <- log(prop.table(crosstab2, margin = c(2, 3))[2,1,2]/(1-prop.table(crosstab2, margin = c(2, 3))[2,1,2]))-alpha_logit
+
+beta3_logit <- log(prop.table(crosstab2, margin = c(2, 3))[2,2,2]/(1-prop.table(crosstab2, margin = c(2, 3))[2,2,2])) - beta2_logit - beta1_logit - alpha_logit
+
+# checking answers
+glm(d$cappun ~ d$weekly + d$conservative + d$weekly*d$conservative, family = "binomial")
+```
